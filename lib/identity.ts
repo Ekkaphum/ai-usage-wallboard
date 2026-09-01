@@ -109,16 +109,62 @@ export function claudeIdentityDirectory(extraConfigDirs: string[] = []): Map<str
   return directory
 }
 
-/** The account uuid a Claude desktop profile is signed in as, if it records one. */
+/**
+ * The account uuid a Claude desktop profile is signed in as.
+ *
+ * Two files record it: the app's own config, and the device registry whose keys
+ * are account uuids. Either is enough to join against an identity found
+ * elsewhere; neither contains the address itself.
+ */
 export function desktopProfileAccountUuid(appDataDir: string): string | null {
-  const path = join(expandHome(appDataDir), 'ant-device-registry.json')
-  if (!existsSync(path)) return null
+  const dir = expandHome(appDataDir)
+
+  const configPath = join(dir, 'config.json')
+  if (existsSync(configPath)) {
+    try {
+      const raw = JSON.parse(readFileSync(configPath, 'utf8')) as { lastKnownAccountUuid?: unknown }
+      if (typeof raw.lastKnownAccountUuid === 'string' && raw.lastKnownAccountUuid) {
+        return raw.lastKnownAccountUuid
+      }
+    } catch { /* fall through to the registry */ }
+  }
+
+  const registryPath = join(dir, 'ant-device-registry.json')
+  if (!existsSync(registryPath)) return null
   try {
-    const raw = JSON.parse(readFileSync(path, 'utf8')) as Record<string, unknown>
+    const raw = JSON.parse(readFileSync(registryPath, 'utf8')) as Record<string, unknown>
     const [first] = Object.keys(raw)
     return first ?? null
   } catch {
     return null
+  }
+}
+
+/**
+ * Falls back to the address declared in config when none could be read.
+ *
+ * A profile signed in only through the desktop app keeps its credentials
+ * encrypted, so the address is genuinely unavailable — but the operator already
+ * told us which account the card is for, and showing that beats showing nothing
+ * as long as it is not passed off as verified.
+ */
+export function withDeclaredFallback(
+  resolved: AccountIdentity | null,
+  declaredEmail: string | undefined,
+  organizationUuid: string | null,
+  accountUuid: string | null,
+): (AccountIdentity & { verified: boolean }) | null {
+  if (resolved) return { ...resolved, verified: true }
+  if (!declaredEmail) return null
+  return {
+    email: declaredEmail,
+    name: null,
+    organizationName: null,
+    organizationType: null,
+    accountUuid,
+    organizationUuid,
+    source: 'config/accounts.json (expectedEmail)',
+    verified: false,
   }
 }
 

@@ -71,6 +71,7 @@ export const openrouter: ProviderAdapter = {
         organizationName: null,
         accountUuid: null,
         organizationUuid: null,
+        verified: true,
       },
       planType: data.is_free_tier ? 'free' : 'paid',
       windows,

@@ -9,7 +9,7 @@ import {
   emptyBurn, makeWindow, unconfigured,
 } from '@/lib/domain/types'
 import { findLastLine } from './jsonl'
-import { codexIdentity } from '@/lib/identity'
+import { codexIdentity, withDeclaredFallback } from '@/lib/identity'
 
 /**
  * Reads the rate-limit snapshot Codex attaches to every `token_count` event in
@@ -189,7 +189,7 @@ export const codexLocal: ProviderAdapter = {
 
     const age = now - newestMs
     const usage = newest.payload.info?.total_token_usage
-    const identity = codexIdentity(home)
+    const identity = withDeclaredFallback(codexIdentity(home), cfg.expectedEmail, null, null)
 
     return [{
       accountId: cfg.id,
@@ -203,6 +203,7 @@ export const codexLocal: ProviderAdapter = {
         organizationName: identity.organizationName,
         accountUuid: identity.accountUuid,
         organizationUuid: identity.organizationUuid,
+        verified: identity.verified,
       },
       planType: rl.plan_type ?? null,
       windows,

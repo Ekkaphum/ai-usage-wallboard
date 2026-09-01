@@ -10,7 +10,7 @@ import {
   emptyBurn, makeWindow, unconfigured,
 } from '@/lib/domain/types'
 import { findCurrentBlock, deriveReset, percentPerHour, type PercentPoint } from '@/lib/calc/blocks'
-import { claudeIdentityDirectory, desktopProfileAccountUuid, type AccountIdentity } from '@/lib/identity'
+import { claudeIdentityDirectory, desktopProfileAccountUuid, withDeclaredFallback, type AccountIdentity } from '@/lib/identity'
 
 /**
  * Reads the plan usage history the Claude desktop app maintains for its own
@@ -71,7 +71,7 @@ export function buildState(
   samples: PlanUsageSample[],
   now: number,
   multipleOrgs: boolean,
-  identity: AccountIdentity | null = null,
+  identity: (AccountIdentity & { verified: boolean }) | null = null,
 ): AccountState {
   const last = samples[samples.length - 1]
   const series = fivePercentSeries(samples)
@@ -151,6 +151,7 @@ export function buildState(
       organizationName: identity.organizationName,
       accountUuid: identity.accountUuid,
       organizationUuid: identity.organizationUuid ?? org,
+      verified: identity.verified,
     },
     // The plan the account is actually on, rather than one typed into config.
     planType: identity?.organizationType ?? null,
@@ -213,9 +214,13 @@ export const claudeDesktopPlanUsage: ProviderAdapter = {
     const multiple = byOrg.size > 1
     return [...byOrg.entries()].map(([org, samples]) => {
       samples.sort((a, b) => a.t - b.t)
-      const identity = directory.get(org)
+      const resolved = directory.get(org)
         ?? (profileAccountUuid ? directory.get(profileAccountUuid) : undefined)
         ?? null
+      // A profile signed in only through the desktop app keeps its credentials
+      // encrypted, so the address may be unavailable even though the card is
+      // fully working. Fall back to what the config declares.
+      const identity = withDeclaredFallback(resolved, cfg.expectedEmail, org, profileAccountUuid)
       return buildState(cfg, org, samples, now, multiple, identity)
     })
   },

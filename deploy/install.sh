@@ -21,9 +21,19 @@ mkdir -p "$HOME/Library/LaunchAgents" "$PROJECT_DIR/data"
 sed -e "s|__PROJECT_DIR__|$PROJECT_DIR|g" -e "s|__NODE__|$NODE|g" \
   "$PROJECT_DIR/deploy/com.local.aiwallboard.plist" > "$PLIST"
 
-# bootout first so re-running this script is an update, not an error
+# Bootout first so re-running this script is an update, not an error. It is
+# asynchronous, so bootstrap can race it and fail with "service already loaded";
+# wait for the old job to actually disappear before loading the new one.
 launchctl bootout "gui/$UID/$LABEL" 2>/dev/null || true
-launchctl bootstrap "gui/$UID" "$PLIST"
+for _ in $(seq 1 20); do
+  launchctl print "gui/$UID/$LABEL" >/dev/null 2>&1 || break
+  sleep 0.5
+done
+
+if ! launchctl bootstrap "gui/$UID" "$PLIST"; then
+  echo "✕ launchctl bootstrap failed — is the agent still loaded? try: launchctl bootout gui/$UID/$LABEL" >&2
+  exit 1
+fi
 launchctl kickstart -k "gui/$UID/$LABEL"
 
 echo "→ waiting for the server"

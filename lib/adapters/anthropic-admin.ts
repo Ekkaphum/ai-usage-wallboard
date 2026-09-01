@@ -101,6 +101,7 @@ export const anthropicAdmin: ProviderAdapter = {
         organizationName: cfg.scopeId ?? null,
         accountUuid: null,
         organizationUuid: null,
+        verified: true,
       },
       planType: 'org',
       windows: [makeWindow({

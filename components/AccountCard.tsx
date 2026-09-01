@@ -48,8 +48,16 @@ export function AccountCard({ account, history, now, linkToDetail = true }: Acco
             ) : account.displayName}
           </h2>
           {identityLine && (
-            <p className="truncate font-mono text-[11.5px] text-accent" title={identityLine}>
+            <p
+              className="truncate font-mono text-[11.5px] text-accent"
+              title={account.identity?.verified
+                ? `${identityLine} — อ่านจาก credential ในเครื่อง`
+                : `${identityLine} — ตั้งไว้ใน config, ยืนยันไม่ได้`}
+            >
               {identityLine}
+              {account.identity && !account.identity.verified && (
+                <span className="ml-1 text-dim" aria-label="ตั้งค่าไว้เอง ยังยืนยันไม่ได้">*</span>
+              )}
             </p>
           )}
           <p className="truncate font-mono text-[10.5px] text-dim">

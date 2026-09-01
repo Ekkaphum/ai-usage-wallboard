@@ -37,6 +37,7 @@ const StateSchema = z.object({
     organizationName: z.string().nullable().default(null),
     accountUuid: z.string().nullable().default(null),
     organizationUuid: z.string().nullable().default(null),
+    verified: z.boolean().default(false),
   }).nullable().default(null),
   planType: z.string().nullable().default(null),
   windows: z.array(LimitWindowSchema).default([]),

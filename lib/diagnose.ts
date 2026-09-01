@@ -85,8 +85,11 @@ export function diagnose(account: AccountConfig): Diagnosis {
           ok: true,
           path: file,
           facts: [
-            who?.email ? `ล็อกอินเป็น ${who.email}${who.organizationType ? ` (${who.organizationType})` : ''}`
-                       : 'อ่านอีเมลของ account นี้ไม่ได้ — ระบุไม่ได้ว่าเป็นใคร',
+            who?.email
+              ? `ล็อกอินเป็น ${who.email}${who.organizationType ? ` (${who.organizationType})` : ''} — อ่านจาก credential`
+              : account.expectedEmail
+                ? `ตั้งไว้ว่าเป็น ${account.expectedEmail} — โปรไฟล์นี้เก็บ credential แบบเข้ารหัส จึงยืนยันไม่ได้`
+                : 'ระบุไม่ได้ว่าเป็น account ไหน — ใส่ expectedEmail ใน config ได้',
             `${samples.length.toLocaleString()} samples`,
             `${orgs.size} org: ${[...orgs].map((o) => o.slice(0, 8)).join(', ')}`,
             `sample ล่าสุด ${age(newest)}`,
@@ -110,7 +113,11 @@ export function diagnose(account: AccountConfig): Diagnosis {
         ok: true,
         path: dir,
         facts: [
-          who?.email ? `ล็อกอินเป็น ${who.email}` : 'อ่านอีเมลของ account นี้ไม่ได้',
+          who?.email
+            ? `ล็อกอินเป็น ${who.email} — อ่านจาก credential`
+            : account.expectedEmail
+              ? `ตั้งไว้ว่าเป็น ${account.expectedEmail} — ยืนยันไม่ได้`
+              : 'ระบุไม่ได้ว่าเป็น account ไหน',
           `${count} session log`,
           `เขียนล่าสุด ${age(newest)}`,
         ],
@@ -130,7 +137,11 @@ export function diagnose(account: AccountConfig): Diagnosis {
         ok: true,
         path: dir,
         facts: [
-          who?.email ? `ล็อกอินเป็น ${who.email}` : 'อ่านอีเมลของ account นี้ไม่ได้',
+          who?.email
+            ? `ล็อกอินเป็น ${who.email} — อ่านจาก credential`
+            : account.expectedEmail
+              ? `ตั้งไว้ว่าเป็น ${account.expectedEmail} — ยืนยันไม่ได้`
+              : 'ระบุไม่ได้ว่าเป็น account ไหน',
           `${count} ไฟล์`,
           `เขียนล่าสุด ${age(newest)}`,
         ],

@@ -12,7 +12,7 @@ import { getDb, schema } from '@/lib/db/client'
 import { currentTokenBlock, tokensPerHour, type TokenPoint } from '@/lib/calc/blocks'
 import { costUsd, normalizeModel, unpricedModels } from '@/lib/calc/pricing'
 import { budgetForFiveHour } from '@/lib/calc/calibrate'
-import { claudeIdentityDirectory } from '@/lib/identity'
+import { claudeIdentityDirectory, withDeclaredFallback } from '@/lib/identity'
 
 /**
  * Reads the per-message token accounting Claude Code writes to
@@ -388,7 +388,8 @@ export const claudeCodeLocal: ProviderAdapter = {
     }
 
     // A Claude Code profile keeps its own signed-in account in .claude.json.
-    const [identity] = [...claudeIdentityDirectory([cfg.claudeConfigDir ?? '~']).values()]
+    const [resolved] = [...claudeIdentityDirectory([cfg.claudeConfigDir ?? '~']).values()]
+    const identity = withDeclaredFallback(resolved ?? null, cfg.expectedEmail, null, null)
 
     const breakdown = modelBreakdown(cfg.id, weekAgo)
     const missing = unpricedModels(breakdown.map((b) => b.model))
@@ -406,6 +407,7 @@ export const claudeCodeLocal: ProviderAdapter = {
         organizationName: identity.organizationName,
         accountUuid: identity.accountUuid,
         organizationUuid: identity.organizationUuid,
+        verified: identity.verified,
       },
       planType: identity?.organizationType ?? null,
       windows: [fiveHour, weekly],

@@ -128,6 +128,10 @@ credential ที่มีอยู่แล้วในเครื่องม
 | `codex-local` | claim ใน `id_token` ของ `$CODEX_HOME/auth.json` | อีเมล, ชื่อ |
 | `claude-code-local` | `$CLAUDE_CONFIG_DIR/.claude.json` | อีเมล |
 
+ถ้าอ่านไม่ได้ (โปรไฟล์ที่ล็อกอินผ่าน desktop app อย่างเดียวจะเก็บ credential แบบเข้ารหัส)
+จะใช้ `expectedEmail` จาก config แทน และติดดาว `*` ไว้บนการ์ด — หน้า `/settings` บอกที่มาชัดเจนว่า
+*"อ่านจาก credential"* หรือ *"ตั้งไว้เอง ยืนยันไม่ได้"*
+
 อ่านเฉพาะ claim `email` กับ `name` เท่านั้น — **token กับ API key ไม่เคยถูกอ่านออกมา เก็บ หรือ log**
 (มี test ยืนยัน) และข้อมูลไปอยู่แค่บนจอที่ bind `127.0.0.1` กับ SQLite ที่ gitignored
 

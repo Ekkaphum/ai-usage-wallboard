@@ -60,13 +60,20 @@ export interface ModelBreakdownEntry {
   costUsd: number | null
 }
 
-/** Who a card actually belongs to, resolved from local credentials. */
+/** Who a card actually belongs to. */
 export interface AccountIdentityRef {
   email: string | null
   name: string | null
   organizationName: string | null
   accountUuid: string | null
   organizationUuid: string | null
+  /**
+   * True when the address was read out of local credentials, false when it was
+   * simply declared in config. A declared address is worth showing — it is what
+   * the operator says this card is — but it has not been checked against
+   * anything, and the settings page should not claim otherwise.
+   */
+  verified: boolean
 }
 
 export interface AccountState {
@@ -141,7 +148,7 @@ export function unconfigured(
     surface,
     displayName,
     identity: expectedEmail
-      ? { email: expectedEmail, name: null, organizationName: null, accountUuid: null, organizationUuid: null }
+      ? { email: expectedEmail, name: null, organizationName: null, accountUuid: null, organizationUuid: null, verified: false }
       : null,
     planType: null,
     windows: [],
