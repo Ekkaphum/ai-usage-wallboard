@@ -48,6 +48,7 @@ export function Wall({ initial, kiosk }: WallProps) {
             <span>วันนี้ <span className="tnum text-text">{formatUsd(totals.today)}</span></span>
           )}
           <ConnectionDot state={connection} />
+          <Freshness generatedAt={payload.generatedAt} now={now} />
           <span className="tnum text-text">
             {new Date(now).toLocaleTimeString('en-GB')}
           </span>
@@ -116,6 +117,35 @@ function Waiting() {
         <span className="text-text">/api/ingest</span>
       </p>
     </div>
+  )
+}
+
+/**
+ * How old the numbers themselves are.
+ *
+ * The wall clock beside this ticks off the browser's own timer, so it keeps
+ * running perfectly while the data behind it is frozen — which is exactly how a
+ * stalled board comes to look healthy. This counts from the snapshot's
+ * timestamp instead, so a pipeline that has stopped is visible within a minute
+ * of stopping, and a board that is merely showing unchanging numbers is not
+ * mistaken for a broken one.
+ */
+function Freshness({ generatedAt, now }: { generatedAt: string; now: number }) {
+  const age = Math.max(0, now - Date.parse(generatedAt))
+  const seconds = Math.round(age / 1000)
+
+  // The server re-probes every 60s, so anything past two missed cycles is a
+  // real signal rather than ordinary jitter.
+  const color = age > 300_000 ? 'var(--crit)' : age > 150_000 ? 'var(--warn)' : 'var(--dim)'
+  const label =
+    seconds < 60 ? `${seconds} วิ` :
+    seconds < 5400 ? `${Math.round(seconds / 60)} นาที` :
+    `${(seconds / 3600).toFixed(1)} ชม.`
+
+  return (
+    <span style={{ color }} title={`ข้อมูลชุดนี้สร้างเมื่อ ${new Date(generatedAt).toLocaleTimeString('en-GB')}`}>
+      อัปเดต <span className="tnum">{label}</span>ที่แล้ว
+    </span>
   )
 }
 

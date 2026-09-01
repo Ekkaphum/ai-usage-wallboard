@@ -25,7 +25,12 @@ export function AccountCard({ account, history, now, linkToDetail = true }: Acco
   const credit = windowByKey(account.windows, 'credit')
   const severity = severityOf(primary?.usedPercent ?? null)
   const color = SEVERITY_COLOR[severity]
-  const dimmed = account.health === 'stale' || account.health === 'unconfigured'
+  const stale = account.health === 'stale'
+  // Only a card with nothing to show gets faded. Fading a *stale* one hid the
+  // very thing the operator needed to read — at 0.5 on this background the
+  // Codex card looked absent rather than old, and the board got blamed for a
+  // source that was simply idle. Stale now stays at full contrast and says so.
+  const dimmed = account.health === 'unconfigured'
   // The email is the thing that actually tells two accounts apart; fall back to
   // a name, then to nothing rather than repeating the card's own label.
   const identityLine = account.identity?.email ?? account.identity?.name ?? null
@@ -33,7 +38,7 @@ export function AccountCard({ account, history, now, linkToDetail = true }: Acco
   return (
     <article
       className="flex flex-col gap-3 bg-panel p-5 transition-opacity duration-500"
-      style={{ opacity: dimmed ? 0.5 : 1 }}
+      style={{ opacity: dimmed ? 0.55 : 1 }}
     >
       <header className="flex items-start justify-between gap-2">
         <div className="min-w-0">
@@ -77,6 +82,8 @@ export function AccountCard({ account, history, now, linkToDetail = true }: Acco
           {HEALTH_MARK[account.health]}
         </span>
       </header>
+
+      {stale && <StaleNotice message={account.message} lastSampleAt={account.lastSampleAt} now={now} />}
 
       {account.windows.length === 0 ? (
         <NoData message={account.message} />
@@ -170,6 +177,28 @@ function Countdown({ window: w, now }: { window: LimitWindow; now: number }) {
       {w.resetConfidence === 'derived' && (
         <span className="ml-1 text-dim" title="เวลารีเซ็ตคำนวณเอง ไม่ได้มาจาก server">~</span>
       )}
+    </p>
+  )
+}
+
+/**
+ * Says, in words, that these numbers stopped moving and roughly when.
+ *
+ * A wallboard is read from across a room, so the distinction that matters is
+ * "old" versus "wrong", and it has to survive being glanced at. The adapter's
+ * own message is preferred because only it knows *why* its source went quiet.
+ */
+function StaleNotice({ message, lastSampleAt, now }: { message: string | null; lastSampleAt: string | null; now: number }) {
+  return (
+    <p
+      className="flex items-start gap-1.5 rounded-[3px] px-2 py-1.5 font-mono text-[11px] leading-relaxed"
+      style={{ color: 'var(--warn)', background: 'color-mix(in srgb, var(--warn) 10%, transparent)' }}
+    >
+      <span aria-hidden="true">◐</span>
+      {/* The adapter's own message already carries the age and the reason, and
+          it is the only thing that knows why *its* source went quiet. Only fall
+          back to a bare age when it has nothing to say. */}
+      <span>{message ?? `ไม่มีข้อมูลใหม่ตั้งแต่ ${formatAge(lastSampleAt, now)}`}</span>
     </p>
   )
 }

@@ -211,11 +211,24 @@ export const codexLocal: ProviderAdapter = {
       spend: { todayUsd: null, weekUsd: null },
       lastSampleAt: new Date(newestMs).toISOString(),
       health: age > STALE_AFTER_MS ? 'stale' : 'ok',
+      // Thai, like the rest of the board. And phrased as what the *source* is
+      // doing, not as a fault: an idle Codex is the normal reason this number
+      // stops moving, and an operator reading it across a room needs to know
+      // that immediately rather than wondering whether the board is broken.
       message: age > STALE_AFTER_MS
-        ? `Last snapshot ${Math.round(age / 60000)} min ago — codex only records limits while a session is active, so the percentage may lag.`
+        ? `codex บันทึกโควต้าเฉพาะตอนมี session ทำงานอยู่ — ไม่มี session มา ${formatAge(age)} ตัวเลขจึงค้างไว้เท่านี้`
         : usage?.total_tokens
-          ? `Newest session used ${usage.total_tokens.toLocaleString()} tokens.`
+          ? `session ล่าสุดใช้ ${usage.total_tokens.toLocaleString()} tokens`
           : null,
     }]
   },
+}
+
+/** "4 ชม." / "35 นาที" — whichever reads better at this magnitude. */
+function formatAge(ms: number): string {
+  const minutes = Math.round(ms / 60_000)
+  if (minutes < 90) return `${minutes} นาที`
+  const hours = ms / 3_600_000
+  if (hours < 24) return `${hours.toFixed(hours < 10 ? 1 : 0)} ชม.`
+  return `${Math.round(hours / 24)} วัน`
 }
