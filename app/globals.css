@@ -1,0 +1,68 @@
+@import "tailwindcss";
+
+/*
+ * The wallboard is a single-purpose dark surface: it lives on a monitor that is
+ * on all day, so it commits to one palette rather than following the viewer's
+ * theme. Semantic colours (ok / warn / crit) are kept separate from the accent
+ * so a gauge's state never competes with the interface's own colour.
+ */
+:root {
+  --ground: #08100f;
+  --panel: #0a1312;
+  --panel-raised: #0b1615;
+  --line: #1d2e2c;
+  --track: #152322;
+  --text: #dcecea;
+  --dim: #6e8a88;
+  --accent: #43cfc4;
+  --ok: #4ed08a;
+  --warn: #f0a93e;
+  --crit: #ff6f6a;
+}
+
+@theme inline {
+  --color-ground: var(--ground);
+  --color-panel: var(--panel);
+  --color-panel-raised: var(--panel-raised);
+  --color-line: var(--line);
+  --color-track: var(--track);
+  --color-text: var(--text);
+  --color-dim: var(--dim);
+  --color-accent: var(--accent);
+  --color-ok: var(--ok);
+  --color-warn: var(--warn);
+  --color-crit: var(--crit);
+  --font-sans: var(--font-geist-sans);
+  --font-mono: var(--font-geist-mono);
+}
+
+html,
+body {
+  background: var(--ground);
+  color: var(--text);
+}
+
+body {
+  font-family: var(--font-geist-sans), system-ui, sans-serif;
+  -webkit-font-smoothing: antialiased;
+}
+
+/* Digits that change every second must not shift the layout under them. */
+.tnum {
+  font-variant-numeric: tabular-nums;
+}
+
+@keyframes pulse-crit {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.45; }
+}
+
+.pulse-crit {
+  animation: pulse-crit 2s ease-in-out infinite;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .pulse-crit {
+    animation: none;
+  }
+}

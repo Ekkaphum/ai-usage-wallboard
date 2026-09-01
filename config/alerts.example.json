@@ -1,0 +1,9 @@
+{
+  "_comment": "ไม่มี channel = ไม่ส่งอะไรเลย. คัดลอกเป็น config/alerts.json แล้วเปิดใช้ทีละช่อง",
+  "thresholds": [70, 90],
+  "channels": [
+    { "id": "slack", "kind": "webhook", "format": "slack", "url": "https://hooks.slack.com/services/…", "enabled": false },
+    { "id": "ntfy", "kind": "webhook", "format": "ntfy", "url": "https://ntfy.sh/my-private-topic", "enabled": false },
+    { "id": "desktop", "kind": "macos", "enabled": true }
+  ]
+}

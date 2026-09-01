@@ -1,0 +1,895 @@
+<title>AI Usage Wallboard</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Archivo:wght@500;600;700&family=Source+Serif+4:opsz,wght@8..60,400;8..60,600&family=JetBrains+Mono:wght@400;500;700&family=Noto+Sans+Thai:wght@400;500;600;700&family=Noto+Serif+Thai:wght@400;600&display=swap">
+
+<style>
+:root{
+  --ground:#F5F7F7;
+  --surface:#FFFFFF;
+  --surface-2:#EDF1F1;
+  --line:#D9E1E1;
+  --line-soft:#E7EDED;
+  --text:#111B1D;
+  --text-2:#40545A;
+  --text-3:#6B8086;
+  --accent:#0B7C7C;
+  --accent-soft:#E0F0EF;
+  --ok:#1F8A4C;
+  --warn:#B26A05;
+  --crit:#B93434;
+  --shadow:0 1px 2px rgba(17,27,29,.05), 0 8px 24px -18px rgba(17,27,29,.35);
+
+  --f-display:'Archivo','Noto Sans Thai',system-ui,sans-serif;
+  --f-body:'Source Serif 4','Noto Serif Thai',Georgia,serif;
+  --f-ui:'Archivo','Noto Sans Thai',system-ui,sans-serif;
+  --f-mono:'JetBrains Mono',ui-monospace,SFMono-Regular,Menlo,monospace;
+}
+@media (prefers-color-scheme:dark){
+  :root:not([data-theme="light"]){
+    --ground:#0C1416;
+    --surface:#121D20;
+    --surface-2:#18262A;
+    --line:#243539;
+    --line-soft:#1C2B2F;
+    --text:#E7EFEF;
+    --text-2:#A9BEC1;
+    --text-3:#7A9096;
+    --accent:#43CFC4;
+    --accent-soft:#12312F;
+    --ok:#4ED08A;
+    --warn:#E9A63B;
+    --crit:#F0736F;
+    --shadow:0 1px 2px rgba(0,0,0,.4), 0 10px 30px -20px rgba(0,0,0,.9);
+  }
+}
+:root[data-theme="dark"]{
+  --ground:#0C1416;
+  --surface:#121D20;
+  --surface-2:#18262A;
+  --line:#243539;
+  --line-soft:#1C2B2F;
+  --text:#E7EFEF;
+  --text-2:#A9BEC1;
+  --text-3:#7A9096;
+  --accent:#43CFC4;
+  --accent-soft:#12312F;
+  --ok:#4ED08A;
+  --warn:#E9A63B;
+  --crit:#F0736F;
+  --shadow:0 1px 2px rgba(0,0,0,.4), 0 10px 30px -20px rgba(0,0,0,.9);
+}
+
+*{box-sizing:border-box}
+body{
+  margin:0;
+  background:var(--ground);
+  color:var(--text);
+  font-family:var(--f-body);
+  font-size:17px;
+  line-height:1.7;
+  -webkit-font-smoothing:antialiased;
+}
+.wrap{max-width:1080px;margin:0 auto;padding:0 24px}
+.col{max-width:68ch}
+
+/* ---------- masthead ---------- */
+.masthead{border-bottom:1px solid var(--line);background:var(--surface)}
+.masthead .wrap{padding-top:56px;padding-bottom:40px}
+.eyebrow{
+  font-family:var(--f-mono);font-size:11.5px;font-weight:500;
+  letter-spacing:.16em;text-transform:uppercase;color:var(--accent);
+  display:flex;align-items:center;gap:10px;margin:0 0 18px
+}
+.eyebrow::after{content:"";flex:1;height:1px;background:var(--line);max-width:120px}
+h1{
+  font-family:var(--f-display);font-weight:700;font-size:clamp(34px,5.2vw,54px);
+  line-height:1.06;letter-spacing:-.022em;text-wrap:balance;margin:0 0 18px
+}
+.standfirst{font-size:19px;line-height:1.65;color:var(--text-2);margin:0;max-width:60ch}
+.meta{
+  display:flex;flex-wrap:wrap;gap:8px 28px;margin-top:28px;
+  font-family:var(--f-mono);font-size:12px;color:var(--text-3);letter-spacing:.02em
+}
+.meta b{color:var(--text-2);font-weight:500}
+
+/* ---------- sections ---------- */
+section{padding:56px 0}
+section + section{border-top:1px solid var(--line-soft)}
+h2{
+  font-family:var(--f-display);font-weight:700;font-size:clamp(23px,2.7vw,31px);
+  letter-spacing:-.015em;line-height:1.2;margin:0 0 6px;text-wrap:balance
+}
+h3{
+  font-family:var(--f-display);font-weight:600;font-size:18px;letter-spacing:-.005em;
+  margin:34px 0 8px
+}
+.kicker{
+  font-family:var(--f-mono);font-size:11px;letter-spacing:.16em;text-transform:uppercase;
+  color:var(--text-3);margin:0 0 12px
+}
+p{margin:0 0 16px}
+.lede{font-size:18.5px;color:var(--text-2)}
+a{color:var(--accent);text-underline-offset:3px}
+code{font-family:var(--f-mono);font-size:.86em;background:var(--surface-2);
+  padding:1px 5px;border-radius:4px;border:1px solid var(--line-soft)}
+strong{font-weight:600}
+ul{margin:0 0 16px;padding-left:1.1em}
+li{margin-bottom:7px}
+li::marker{color:var(--text-3)}
+
+/* ---------- wallboard mockup (fixed dark: it depicts a physical screen) ---------- */
+.board-frame{
+  background:#08100F;border:1px solid #1D2E2C;border-radius:14px;
+  padding:0;overflow:hidden;box-shadow:0 30px 60px -40px rgba(0,0,0,.8);
+  --b-line:#1D2E2C;--b-dim:#6E8A88;--b-text:#DCECEA;
+  --b-ok:#4ED08A;--b-warn:#F0A93E;--b-crit:#FF6F6A;--b-acc:#43CFC4;
+}
+.board-top{
+  display:flex;align-items:baseline;justify-content:space-between;gap:16px;flex-wrap:wrap;
+  padding:14px 20px;border-bottom:1px solid var(--b-line);background:#0B1615
+}
+.board-title{font-family:var(--f-display);font-weight:700;font-size:14px;
+  letter-spacing:.14em;color:var(--b-text);text-transform:uppercase}
+.board-stats{font-family:var(--f-mono);font-size:12.5px;color:var(--b-dim);
+  display:flex;gap:20px;flex-wrap:wrap;font-variant-numeric:tabular-nums}
+.board-stats b{color:var(--b-text);font-weight:500}
+.board-grid{
+  display:grid;gap:1px;background:var(--b-line);
+  grid-template-columns:repeat(auto-fit,minmax(215px,1fr))
+}
+.card{background:#0A1312;padding:18px 18px 16px;display:flex;flex-direction:column;gap:12px}
+.card.is-dim{opacity:.45}
+.card-head{display:flex;flex-direction:column;gap:2px}
+.card-name{font-family:var(--f-display);font-weight:600;font-size:13px;
+  letter-spacing:.08em;text-transform:uppercase;color:var(--b-text)}
+.card-sub{font-family:var(--f-mono);font-size:11px;color:var(--b-dim)}
+.gauge{display:flex;align-items:center;gap:14px}
+.gauge svg{flex:none}
+.gauge-num{font-family:var(--f-display);font-weight:700;font-size:30px;
+  line-height:1;font-variant-numeric:tabular-nums;letter-spacing:-.02em}
+.gauge-unit{font-family:var(--f-mono);font-size:10.5px;color:var(--b-dim);
+  letter-spacing:.1em;text-transform:uppercase;margin-top:5px;display:block}
+.bar{height:5px;border-radius:3px;background:#152322;overflow:hidden}
+.bar > i{display:block;height:100%;border-radius:3px}
+.row{display:flex;justify-content:space-between;align-items:center;gap:8px;
+  font-family:var(--f-mono);font-size:11px;color:var(--b-dim);
+  font-variant-numeric:tabular-nums}
+.row b{color:var(--b-text);font-weight:500}
+.alarm{font-family:var(--f-mono);font-size:11px;color:var(--b-warn);
+  display:flex;align-items:center;gap:6px}
+.alarm.crit{color:var(--b-crit)}
+.spark{display:block;width:100%;height:26px}
+.badge{
+  display:inline-flex;align-items:center;gap:5px;font-family:var(--f-mono);
+  font-size:9.5px;letter-spacing:.12em;text-transform:uppercase;
+  padding:2px 6px;border-radius:3px;border:1px solid currentColor
+}
+.card-foot{display:flex;justify-content:space-between;align-items:center;gap:8px;
+  border-top:1px solid var(--b-line);padding-top:10px;margin-top:auto}
+.age{font-family:var(--f-mono);font-size:10px;color:var(--b-dim)}
+.caption{font-family:var(--f-ui);font-size:13px;color:var(--text-3);
+  margin-top:12px;line-height:1.55}
+
+/* ---------- truth table ---------- */
+.scroll{overflow-x:auto;border:1px solid var(--line);border-radius:10px;background:var(--surface)}
+table{border-collapse:collapse;width:100%;min-width:640px;font-family:var(--f-ui);font-size:14px}
+th,td{text-align:left;padding:13px 16px;border-bottom:1px solid var(--line-soft);vertical-align:top}
+thead th{
+  font-family:var(--f-mono);font-size:10.5px;letter-spacing:.13em;text-transform:uppercase;
+  color:var(--text-3);font-weight:500;background:var(--surface-2);
+  border-bottom:1px solid var(--line);position:sticky;top:0
+}
+tbody tr:last-child td{border-bottom:none}
+td:first-child{font-weight:600;white-space:nowrap;font-family:var(--f-display)}
+.tag{
+  font-family:var(--f-mono);font-size:10px;letter-spacing:.1em;text-transform:uppercase;
+  padding:3px 7px;border-radius:4px;white-space:nowrap;display:inline-block;font-weight:500
+}
+.tag.yes{color:var(--ok);background:color-mix(in srgb,var(--ok) 12%,transparent)}
+.tag.no{color:var(--crit);background:color-mix(in srgb,var(--crit) 12%,transparent)}
+.tag.part{color:var(--warn);background:color-mix(in srgb,var(--warn) 14%,transparent)}
+.tag.acc{color:var(--accent);background:var(--accent-soft)}
+
+/* ---------- callout ---------- */
+.callout{
+  border-left:3px solid var(--accent);background:var(--accent-soft);
+  padding:18px 22px;border-radius:0 8px 8px 0;margin:26px 0
+}
+.callout p:last-child{margin-bottom:0}
+.callout .kicker{color:var(--accent);margin-bottom:8px}
+
+/* ---------- architecture ---------- */
+.arch{background:var(--surface);border:1px solid var(--line);border-radius:10px;
+  padding:24px;overflow-x:auto}
+.arch svg{display:block;min-width:600px;width:100%;height:auto}
+
+/* ---------- phases ---------- */
+.phases{display:flex;flex-direction:column;gap:0;margin-top:8px}
+.phase{
+  display:grid;grid-template-columns:56px 1fr 90px;gap:18px;align-items:start;
+  padding:18px 0;border-bottom:1px solid var(--line-soft)
+}
+.phase:last-child{border-bottom:none}
+.phase-n{
+  font-family:var(--f-mono);font-size:12px;font-weight:700;color:var(--accent);
+  letter-spacing:.06em;padding-top:3px
+}
+.phase-t{font-family:var(--f-display);font-weight:600;font-size:16.5px;margin:0 0 3px}
+.phase-d{font-size:15px;color:var(--text-2);margin:0;line-height:1.6}
+.phase-days{font-family:var(--f-mono);font-size:12px;color:var(--text-3);
+  text-align:right;padding-top:5px;font-variant-numeric:tabular-nums}
+.phase.mvp{background:var(--accent-soft);margin:0 -14px;padding-left:14px;padding-right:14px;
+  border-radius:6px;border-bottom-color:transparent}
+.phase.mvp + .phase{border-top:1px solid var(--line-soft)}
+.mvp-flag{
+  font-family:var(--f-mono);font-size:10px;letter-spacing:.12em;text-transform:uppercase;
+  color:var(--accent);margin-top:6px;display:block
+}
+
+/* ---------- decisions ---------- */
+.qs{display:grid;gap:14px;grid-template-columns:repeat(auto-fit,minmax(250px,1fr));margin-top:22px}
+.q{background:var(--surface);border:1px solid var(--line);border-radius:10px;
+  padding:18px 20px;box-shadow:var(--shadow)}
+.q h4{font-family:var(--f-display);font-weight:600;font-size:15px;margin:0 0 6px;line-height:1.4}
+.q p{font-size:14.5px;color:var(--text-2);margin:0;line-height:1.6}
+
+footer{border-top:1px solid var(--line);padding:32px 0 56px;
+  font-family:var(--f-mono);font-size:12px;color:var(--text-3)}
+
+@media (max-width:640px){
+  body{font-size:16px}
+  .phase{grid-template-columns:40px 1fr;gap:12px}
+  .phase-days{grid-column:2;text-align:left;padding-top:2px}
+  section{padding:42px 0}
+}
+@media (prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
+</style>
+
+<header class="masthead">
+  <div class="wrap">
+    <p class="eyebrow">Spec &amp; Implementation Plan · v0.2</p>
+    <h1>AI Usage Wallboard</h1>
+    <p class="standfirst">
+      จอมอนิเตอร์ที่เปิดทิ้งไว้ตลอด บอกว่า AI account แต่ละตัวใช้ไปเท่าไหร่ เหลือเท่าไหร่
+      และจะรีเซ็ตอีกกี่นาที — รองรับ Claude หลาย account, Codex และเจ้าอื่นๆ
+    </p>
+    <div class="meta">
+      <span><b>ขอบเขต</b> local-first · single machine</span>
+      <span><b>Stack</b> Next.js 16 · SQLite · SSE</span>
+      <span><b>MVP</b> ~5.5 วัน</span>
+      <span><b>แก้ไข</b> v0.2 · ตัวเลข Claude เป็น reported แล้ว</span>
+      <span><b>เต็มรูปแบบ</b> ~9 วัน</span>
+    </div>
+  </div>
+</header>
+
+<section>
+  <div class="wrap">
+    <p class="kicker">สิ่งที่จะได้เห็นบนจอ</p>
+    <h2>หน้าจอหลัก อ่านจบใน 2 วินาที</h2>
+    <p class="col lede">
+      ทุกอย่างในเอกสารนี้มีอยู่เพื่อทำให้จอนี้ถูกต้อง การ์ดหนึ่งใบ = หนึ่ง account
+      ตัวเลขใหญ่คือหน้าต่าง 5 ชั่วโมง แถบบางคือรายสัปดาห์ และ<strong>ทุกใบต้องบอกเสมอว่าตัวเลขนั้นเชื่อถือได้แค่ไหน</strong>
+    </p>
+
+    <div class="board-frame" style="margin-top:28px">
+      <div class="board-top">
+        <span class="board-title">AI Usage</span>
+        <span class="board-stats">
+          <span>วันนี้ <b>2.41M</b> tok</span>
+          <span>สัปดาห์นี้ <b>$18.30</b></span>
+          <span><b id="clock">14:32:07</b></span>
+        </span>
+      </div>
+      <div class="board-grid">
+
+        <!-- 1: warning + projection -->
+        <div class="card">
+          <div class="card-head">
+            <span class="card-name">Claude · personal</span>
+            <span class="card-sub">desktop app · max20</span>
+          </div>
+          <div class="gauge">
+            <svg width="76" height="76" viewBox="0 0 76 76" role="img" aria-label="ใช้ไป 74 เปอร์เซ็นต์">
+              <circle cx="38" cy="38" r="31" fill="none" stroke="#152322" stroke-width="8"/>
+              <circle cx="38" cy="38" r="31" fill="none" stroke="var(--b-warn)" stroke-width="8"
+                stroke-linecap="round" stroke-dasharray="144.1 194.8" transform="rotate(-90 38 38)"/>
+            </svg>
+            <div>
+              <span class="gauge-num" style="color:var(--b-warn)">74%</span>
+              <span class="gauge-unit">5-hour session</span>
+            </div>
+          </div>
+          <div class="row"><span>รีเซ็ตอีก</span><b data-countdown="6480">1:48:00</b></div>
+          <div class="alarm">▲ คาดว่าเต็ม 15:10 — ก่อนรีเซ็ต</div>
+          <div class="row"><span>weekly</span><b>57%</b></div>
+          <div class="bar"><i style="width:57%;background:var(--b-ok)"></i></div>
+          <svg class="spark" viewBox="0 0 100 26" preserveAspectRatio="none" aria-hidden="true">
+            <path d="M0 24 L12 21 L24 15 L36 8 L48 5 L60 11 L72 14 L84 19 L100 22 L100 26 L0 26 Z"
+              fill="var(--b-warn)" opacity=".16"/>
+            <path d="M0 24 L12 21 L24 15 L36 8 L48 5 L60 11 L72 14 L84 19 L100 22"
+              fill="none" stroke="var(--b-warn)" stroke-width="1.5"/>
+          </svg>
+          <div class="card-foot">
+            <span class="badge" style="color:var(--b-ok)">reported</span>
+            <span class="age">3 นาทีที่แล้ว</span>
+          </div>
+        </div>
+
+        <!-- 2: ไม่มีข้อมูล เพราะอยู่บน browser -->
+        <div class="card">
+          <div class="card-head">
+            <span class="card-name">Claude · work</span>
+            <span class="card-sub">browser · ยังไม่เชื่อมต่อ</span>
+          </div>
+          <div class="gauge">
+            <svg width="76" height="76" viewBox="0 0 76 76" role="img" aria-label="ยังไม่มีข้อมูล">
+              <circle cx="38" cy="38" r="31" fill="none" stroke="#152322" stroke-width="8"/>
+              <circle cx="38" cy="38" r="31" fill="none" stroke="#2C4442" stroke-width="8"
+                stroke-linecap="round" stroke-dasharray="5 13" transform="rotate(-90 38 38)"/>
+            </svg>
+            <div>
+              <span class="gauge-num" style="color:var(--b-dim)">—</span>
+              <span class="gauge-unit">ไม่มีข้อมูล</span>
+            </div>
+          </div>
+          <div class="alarm">▲ account นี้ใช้ผ่าน browser</div>
+          <div class="row" style="line-height:1.5;display:block;color:var(--b-dim)">
+            ย้ายไปเปิดใน desktop app instance ที่สอง<br>แล้วการ์ดนี้จะได้ % จริงเหมือนใบซ้าย
+          </div>
+          <div class="card-foot">
+            <span class="badge" style="color:var(--b-dim)">unconfigured</span>
+            <span class="age">รอ setup</span>
+          </div>
+        </div>
+
+        <!-- 3: critical, reported -->
+        <div class="card">
+          <div class="card-head">
+            <span class="card-name">Codex · main</span>
+            <span class="card-sub">codex-cli · plus</span>
+          </div>
+          <div class="gauge">
+            <svg width="76" height="76" viewBox="0 0 76 76" role="img" aria-label="ใช้ไป 91 เปอร์เซ็นต์">
+              <circle cx="38" cy="38" r="31" fill="none" stroke="#152322" stroke-width="8"/>
+              <circle cx="38" cy="38" r="31" fill="none" stroke="var(--b-crit)" stroke-width="8"
+                stroke-linecap="round" stroke-dasharray="177.3 194.8" transform="rotate(-90 38 38)"/>
+            </svg>
+            <div>
+              <span class="gauge-num" style="color:var(--b-crit)">91%</span>
+              <span class="gauge-unit">5-hour · primary</span>
+            </div>
+          </div>
+          <div class="row"><span>รีเซ็ตอีก</span><b data-countdown="1380">0:23:00</b></div>
+          <div class="alarm crit">■ ใกล้เต็ม — พัก หรือย้ายไป account อื่น</div>
+          <div class="row"><span>weekly</span><b>34%</b></div>
+          <div class="bar"><i style="width:34%;background:var(--b-ok)"></i></div>
+          <svg class="spark" viewBox="0 0 100 26" preserveAspectRatio="none" aria-hidden="true">
+            <path d="M0 25 L12 18 L24 6 L36 3 L48 7 L60 12 L72 17 L84 21 L100 24 L100 26 L0 26 Z"
+              fill="var(--b-crit)" opacity=".16"/>
+            <path d="M0 25 L12 18 L24 6 L36 3 L48 7 L60 12 L72 17 L84 21 L100 24"
+              fill="none" stroke="var(--b-crit)" stroke-width="1.5"/>
+          </svg>
+          <div class="card-foot">
+            <span class="badge" style="color:var(--b-ok)">reported</span>
+            <span class="age">9 วินาทีที่แล้ว</span>
+          </div>
+        </div>
+
+        <!-- 4: credit balance -->
+        <div class="card">
+          <div class="card-head">
+            <span class="card-name">OpenRouter</span>
+            <span class="card-sub">api · pay-as-you-go</span>
+          </div>
+          <div class="gauge">
+            <svg width="76" height="76" viewBox="0 0 76 76" role="img" aria-label="เครดิตเหลือ 25 เปอร์เซ็นต์">
+              <circle cx="38" cy="38" r="31" fill="none" stroke="#152322" stroke-width="8"/>
+              <circle cx="38" cy="38" r="31" fill="none" stroke="var(--b-acc)" stroke-width="8"
+                stroke-linecap="round" stroke-dasharray="48.7 194.8" transform="rotate(-90 38 38)"/>
+            </svg>
+            <div>
+              <span class="gauge-num" style="color:var(--b-acc)">$12<span style="font-size:15px">.40</span></span>
+              <span class="gauge-unit">เครดิตคงเหลือ</span>
+            </div>
+          </div>
+          <div class="row"><span>ใช้ไปเดือนนี้</span><b>$37.60</b></div>
+          <div class="row"><span>burn</span><b>$1.90 / วัน</b></div>
+          <div class="bar"><i style="width:25%;background:var(--b-acc)"></i></div>
+          <svg class="spark" viewBox="0 0 100 26" preserveAspectRatio="none" aria-hidden="true">
+            <path d="M0 20 L12 22 L24 19 L36 21 L48 17 L60 20 L72 18 L84 21 L100 19"
+              fill="none" stroke="var(--b-acc)" stroke-width="1.5"/>
+          </svg>
+          <div class="card-foot">
+            <span class="badge" style="color:var(--b-ok)">reported</span>
+            <span class="age">1 นาทีที่แล้ว</span>
+          </div>
+        </div>
+
+        <!-- 5: stale -->
+        <div class="card is-dim">
+          <div class="card-head">
+            <span class="card-name">Gemini CLI</span>
+            <span class="card-sub">manual · ingest</span>
+          </div>
+          <div class="gauge">
+            <svg width="76" height="76" viewBox="0 0 76 76" role="img" aria-label="ข้อมูลเก่า">
+              <circle cx="38" cy="38" r="31" fill="none" stroke="#152322" stroke-width="8"/>
+            </svg>
+            <div>
+              <span class="gauge-num" style="color:var(--b-dim)">—</span>
+              <span class="gauge-unit">ไม่มีข้อมูล</span>
+            </div>
+          </div>
+          <div class="row"><span>sample ล่าสุด</span><b>6 ชม.ที่แล้ว</b></div>
+          <div class="card-foot">
+            <span class="badge" style="color:var(--b-dim)">stale</span>
+            <span class="age">รอ POST /api/ingest</span>
+          </div>
+        </div>
+
+      </div>
+    </div>
+    <p class="caption">
+      ตัวอย่างหน้าจอ (mockup) · การ์ดทั้งห้าใบแสดงสถานะครบทุกแบบที่ระบบต้องรองรับ:
+      เตือนล่วงหน้า · ยังไม่เชื่อมต่อ · ใกล้เต็ม · เครดิตเป็นเงิน · ข้อมูลเก่า — ตัวเลข Claude 74% / 57% คือค่าจริงที่อ่านได้จากเครื่องคุณตอนนี้
+    </p>
+  </div>
+</section>
+
+<section>
+  <div class="wrap">
+    <p class="kicker">ข้อเท็จจริงที่ตรวจสอบจากเครื่องคุณแล้ว</p>
+    <h2>ความจริงข้อเดียวที่กำหนดทั้งระบบ</h2>
+    <div class="col">
+      <p class="lede">
+        แหล่งข้อมูลแต่ละเจ้าให้ความแม่นไม่เท่ากัน และบางเจ้าไม่ให้อะไรเลย ถ้า design ระบบโดยไม่แยกสามอย่างนี้
+        จอจะแสดงตัวเลขเดาปนตัวเลขจริงโดยที่คนมองแยกไม่ออก ซึ่งแย่กว่าไม่มีจอ
+        <strong>ข่าวดีคือ Claude มีไฟล์ที่เก็บ % จริงไว้ให้อยู่แล้ว</strong> — เพิ่งเจอตอนสำรวจเครื่อง
+        และมันเปลี่ยนแผนไปเยอะ
+      </p>
+    </div>
+
+    <div class="scroll" style="margin-top:24px">
+      <table>
+        <thead>
+          <tr><th>แหล่ง</th><th>บอก limit คงเหลือ</th><th>ได้อะไรจริงๆ</th></tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>Codex CLI</td>
+            <td><span class="tag yes">มี · แม่นยำ</span></td>
+            <td><code>~/.codex/sessions/**/rollout-*.jsonl</code> มี event <code>token_count</code>
+              แนบ <code>rate_limits</code> มาด้วย: <code>primary</code> (300 นาที) และ
+              <code>secondary</code> (10080 นาที) พร้อม <code>used_percent</code>,
+              <code>resets_at</code>, <code>plan_type</code>, <code>credits.balance</code></td>
+          </tr>
+          <tr>
+            <td>Claude Desktop app<br><span style="font-weight:400;font-family:var(--f-ui);font-size:13px;color:var(--text-3)">Pro / Max</span></td>
+            <td><span class="tag yes">มี · ตัวเลขจริง</span></td>
+            <td><code>~/Library/Application Support/Claude/plan-usage-history.json</code> —
+              แอปเก็บ % ของ plan ไว้เองทุก ~15 นาที ย้อนหลัง 30 วัน:
+              <code>fh</code> = หน้าต่าง 5 ชม. · <code>sd</code> = หน้าต่าง 7 วัน ·
+              <code>xu</code> = โควตา extra usage · <code>org</code> = UUID ของ account
+              <br><strong>บนเครื่องคุณตอนนี้: 1,851 samples · fh 74% · sd 57%</strong></td>
+          </tr>
+          <tr>
+            <td>Claude บน browser<br><span style="font-weight:400;font-family:var(--f-ui);font-size:13px;color:var(--text-3)">claude.ai</span></td>
+            <td><span class="tag no">ไม่มีเลย</span></td>
+            <td>ใช้ผ่าน browser = ไม่มีไฟล์อะไรในเครื่องให้อ่าน — ต้องย้าย account นั้นไปรันบน
+              desktop app instance ที่สอง</td>
+          </tr>
+          <tr>
+            <td>Claude Code<br><span style="font-weight:400;font-family:var(--f-ui);font-size:13px;color:var(--text-3)">CLI / ในแอป</span></td>
+            <td><span class="tag part">token ครบ · ไม่มี %</span></td>
+            <td><code>~/.claude/projects/**/*.jsonl</code> เก็บ <code>usage</code> ครบต่อ message
+              → ใช้เป็นแหล่ง <strong>breakdown ต่อ model และ cost</strong> ไม่ใช่แหล่ง %
+              (ตรวจแล้ว: <code>entrypoint</code> เป็น <code>claude-desktop</code> 39,894 records,
+              <code>cli</code> 5,198 — <em>ไม่ครอบคลุมแชทธรรมดา</em>)</td>
+          </tr>
+          <tr>
+            <td>Anthropic API<br><span style="font-weight:400;font-family:var(--f-ui);font-size:13px;color:var(--text-3)">org / console</span></td>
+            <td><span class="tag yes">มี · ทางการ</span></td>
+            <td>Admin API <code>/v1/organizations/usage_report/messages</code> +
+              <code>/cost_report</code> · และ response header <code>anthropic-ratelimit-*-remaining</code></td>
+          </tr>
+          <tr>
+            <td>OpenAI Platform</td>
+            <td><span class="tag yes">มี · ทางการ</span></td>
+            <td><code>/v1/organization/usage/completions</code> และ <code>/costs</code> (Admin key)</td>
+          </tr>
+          <tr>
+            <td>OpenRouter</td>
+            <td><span class="tag yes">มี · ทางการ</span></td>
+            <td><code>GET /api/v1/key</code> → usage / limit / limit_remaining</td>
+          </tr>
+          <tr>
+            <td>Gemini · Copilot<br>Cursor · อื่นๆ</td>
+            <td><span class="tag part">บางส่วน</span></td>
+            <td>Copilot มี org metrics API (ต้องเป็น org admin) · Gemini ต้องผ่าน Cloud Monitoring quota
+              → เวอร์ชันแรกใช้ช่องทาง <code>POST /api/ingest</code> ให้ script ภายนอกส่งตัวเลขเข้ามาแทน</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div class="callout col" style="max-width:none">
+      <p class="kicker">กติกาข้อแรกของระบบ</p>
+      <p style="margin-bottom:10px">ทุกตัวเลขติดป้ายความน่าเชื่อถือ และป้ายนี้<strong>ห้ามซ่อน</strong>:</p>
+      <p style="margin-bottom:0">
+        <span class="tag acc">reported</span> server บอกมาตรงๆ ·
+        <span class="tag acc">derived</span> คำนวณจาก log ที่ครบถ้วน ·
+        <span class="tag acc">estimated</span> ประมาณจาก budget ที่ calibrate เอง ·
+        <span class="tag acc">calibrating</span> ข้อมูลยังไม่พอ — แสดง token ดิบ ไม่ปลอม %
+      </p>
+    </div>
+
+    <h3>สิ่งที่จะไม่ทำ</h3>
+    <p class="col">
+      ไม่ scrape หน้าเว็บ claude.ai / chatgpt.com ด้วย headless browser และไม่เรียก private endpoint
+      ที่ไม่ได้ documented เพราะมันเปราะ เสี่ยงผิด ToS และเวลาพังมัน<strong>พังเงียบ</strong> —
+      จอจะโชว์ตัวเลขเมื่อวานต่อไปเรื่อยๆ โดยไม่มีใครรู้
+    </p>
+  </div>
+</section>
+
+<section>
+  <div class="wrap">
+    <p class="kicker">สถาปัตยกรรม</p>
+    <h2>อ่านไฟล์ในเครื่อง แล้ว normalize ให้เหลือรูปเดียว</h2>
+    <p class="col lede">
+      ข้อมูลต้นทางอยู่บน filesystem ของเครื่องที่รัน CLI — deploy ขึ้น cloud แล้วอ่าน
+      <code>~/.claude</code> ไม่ได้ ดังนั้นเฟสแรกจึงเป็น local-first แล้วค่อยแตกเป็น collector ทีหลัง
+    </p>
+
+    <div class="arch">
+      <svg viewBox="0 0 760 300" xmlns="http://www.w3.org/2000/svg" role="img"
+           aria-label="แผนภาพ: แหล่งข้อมูลเข้าสู่ adapter แล้ว normalize เป็น AccountState เก็บใน SQLite และส่งผ่าน SSE ไปยังจอ">
+        <defs>
+          <marker id="ar" markerWidth="9" markerHeight="9" refX="8" refY="4.5" orient="auto">
+            <path d="M0 1 L8 4.5 L0 8 z" fill="currentColor"/>
+          </marker>
+        </defs>
+        <g font-family="JetBrains Mono, monospace" font-size="10.5" color="currentColor">
+
+          <text x="14" y="18" fill="var(--text-3)" letter-spacing="1.4">SOURCES</text>
+          <g fill="var(--surface-2)" stroke="var(--line)">
+            <rect x="14" y="30" width="168" height="38" rx="6"/>
+            <rect x="14" y="76" width="168" height="38" rx="6"/>
+            <rect x="14" y="122" width="168" height="38" rx="6"/>
+            <rect x="14" y="168" width="168" height="38" rx="6"/>
+          </g>
+          <g fill="var(--text)" font-size="10">
+            <text x="26" y="47">~/.claude/projects/**</text>
+            <text x="26" y="60" fill="var(--text-3)">JSONL · usage ต่อ message</text>
+            <text x="26" y="93">~/.codex/sessions/**</text>
+            <text x="26" y="106" fill="var(--text-3)">JSONL · rate_limits จริง</text>
+            <text x="26" y="139">Admin / REST APIs</text>
+            <text x="26" y="152" fill="var(--text-3)">Anthropic · OpenAI · OpenRouter</text>
+            <text x="26" y="185">POST /api/ingest</text>
+            <text x="26" y="198" fill="var(--text-3)">manual · เครื่องอื่น</text>
+          </g>
+
+          <g stroke="var(--text-3)" fill="none" marker-end="url(#ar)" color="var(--text-3)">
+            <path d="M182 49 L228 49 L228 118 L246 118"/>
+            <path d="M182 95 L214 95 L214 118 L246 118"/>
+            <path d="M182 141 L214 141 L214 118 L246 118"/>
+            <path d="M182 187 L228 187 L228 118 L246 118"/>
+          </g>
+
+          <text x="250" y="18" fill="var(--text-3)" letter-spacing="1.4">ADAPTERS</text>
+          <rect x="250" y="30" width="150" height="176" rx="6" fill="var(--surface-2)" stroke="var(--accent)"/>
+          <g fill="var(--text)" font-size="10">
+            <text x="262" y="50">codex-local</text>
+            <text x="262" y="68">claude-code-local</text>
+            <text x="262" y="86">anthropic-admin</text>
+            <text x="262" y="104">openai-admin</text>
+            <text x="262" y="122">openrouter</text>
+            <text x="262" y="140">manual</text>
+          </g>
+          <text x="262" y="168" fill="var(--text-3)" font-size="9.5">zod validate ทุก record</text>
+          <text x="262" y="184" fill="var(--text-3)" font-size="9.5">↓ AccountState</text>
+
+          <g stroke="var(--text-3)" fill="none" marker-end="url(#ar)" color="var(--text-3)">
+            <path d="M400 118 L436 118"/>
+          </g>
+
+          <text x="440" y="18" fill="var(--text-3)" letter-spacing="1.4">CORE</text>
+          <rect x="440" y="30" width="150" height="176" rx="6" fill="var(--surface-2)" stroke="var(--line)"/>
+          <g fill="var(--text)" font-size="10">
+            <text x="452" y="50">SQLite (WAL)</text>
+            <text x="452" y="72" fill="var(--text-3)">usage_events · dedupe</text>
+            <text x="452" y="86" fill="var(--text-3)">limit_hits · ground truth</text>
+            <text x="452" y="100" fill="var(--text-3)">samples · time series</text>
+            <text x="452" y="126">calc/</text>
+            <text x="452" y="146" fill="var(--text-3)">5h block · rolling week</text>
+            <text x="452" y="160" fill="var(--text-3)">calibrate budget</text>
+            <text x="452" y="174" fill="var(--text-3)">burn · projection</text>
+            <text x="452" y="196" fill="var(--text-3)">pricing → USD</text>
+          </g>
+
+          <g stroke="var(--text-3)" fill="none" marker-end="url(#ar)" color="var(--text-3)">
+            <path d="M590 118 L626 118"/>
+          </g>
+
+          <text x="630" y="18" fill="var(--text-3)" letter-spacing="1.4">OUT</text>
+          <rect x="630" y="30" width="116" height="80" rx="6" fill="var(--surface-2)" stroke="var(--line)"/>
+          <g fill="var(--text)" font-size="10">
+            <text x="642" y="50">GET /api/stream</text>
+            <text x="642" y="64" fill="var(--text-3)">SSE · 10 วิ</text>
+            <text x="642" y="84">Chrome --kiosk</text>
+            <text x="642" y="98" fill="var(--text-3)">wallboard</text>
+          </g>
+          <rect x="630" y="126" width="116" height="80" rx="6" fill="var(--surface-2)" stroke="var(--line)"/>
+          <g fill="var(--text)" font-size="10">
+            <text x="642" y="146">Alerts</text>
+            <text x="642" y="160" fill="var(--text-3)">70% / 90%</text>
+            <text x="642" y="178" fill="var(--text-3)">webhook</text>
+            <text x="642" y="192" fill="var(--text-3)">macOS notify</text>
+          </g>
+
+          <g stroke="var(--line)" fill="none" stroke-dasharray="3 3">
+            <path d="M14 232 L746 232"/>
+          </g>
+          <text x="14" y="252" fill="var(--text-3)" font-size="9.5">chokidar เฝ้าไฟล์ → probe ทันทีเมื่อมีการเปลี่ยนแปลง · อย่างช้าที่สุด re-scan ทุก 60 วินาที</text>
+          <text x="14" y="270" fill="var(--text-3)" font-size="9.5">อ่านไฟล์แบบ read-only · server bind 127.0.0.1 · ไม่เก็บเนื้อหา prompt/response ลง DB</text>
+        </g>
+      </svg>
+    </div>
+  </div>
+</section>
+
+<section>
+  <div class="wrap">
+    <p class="kicker">สิ่งที่เจอตอนสำรวจเครื่อง</p>
+    <h2>Claude เก็บ % ไว้ให้แล้ว — แค่ไม่มีใครบอก</h2>
+    <div class="col">
+      <p class="lede">
+        แผนเวอร์ชันแรกวางไว้ว่าจะต้องคำนวณ % ของ Claude เองจาก token แล้ว calibrate หา budget
+        ซึ่งเป็นส่วนที่ยากและแม่นน้อยที่สุดทั้งโปรเจกต์ — <strong>ไม่ต้องทำแล้ว</strong>
+      </p>
+      <p>
+        Claude desktop app เขียนไฟล์นี้ไว้เองอยู่แล้ว และมันคือสิ่งที่หน้า <code>/usage</code> ในแอปใช้:
+      </p>
+    </div>
+
+    <div class="scroll" style="margin-top:8px;margin-bottom:24px">
+      <pre style="margin:0;padding:20px;font-family:var(--f-mono);font-size:12.5px;line-height:1.75;overflow-x:auto"><code style="background:none;border:none;padding:0">~/Library/Application Support/Claude/plan-usage-history.json
+
+{ "version": 2,
+  "samples": [
+    { "t":   1788230844516,        <span style="color:var(--text-3)">// epoch ms — เขียนทุก ~15 นาที</span>
+      "org": "f99b3e24-…",         <span style="color:var(--text-3)">// UUID ของ account → ใช้แยก 2 accounts ได้เลย</span>
+      "u": { "fh": 74,             <span style="color:var(--text-3)">// % หน้าต่าง 5 ชั่วโมง</span>
+             "sd": 57,             <span style="color:var(--text-3)">// % หน้าต่าง 7 วัน</span>
+             "xu": 100 } }         <span style="color:var(--text-3)">// โควตา extra usage</span>
+  ] }</code></pre>
+    </div>
+
+    <div class="col">
+      <p>สิ่งที่ยืนยันแล้วจากไฟล์จริงบนเครื่องคุณ:</p>
+      <ul>
+        <li><strong>1,851 samples ย้อนหลัง 30 วัน</strong> (2 ส.ค. → 1 ก.ย.) — dashboard มีกราฟประวัติใช้ได้ตั้งแต่วันแรก ไม่ต้องรอสะสมข้อมูล</li>
+        <li><strong>จับจังหวะรีเซ็ตได้</strong> — พบ <code>fh</code> ตกจากค่าสูงลงมา 0 ทั้งหมด 8 ครั้งใน 30 วัน
+          → ใช้ derive <code>resetsAt</code> ได้ (ไฟล์ไม่ได้บอกเวลารีเซ็ตมาตรงๆ)</li>
+        <li><code>sd</code> เคยขึ้นถึง 93% และ <code>fh</code> ถึง 100% → สเกลเป็น 0–100 จริง ไม่ใช่ค่าอื่น</li>
+        <li>เขียนเฉพาะตอนแอปเปิดอยู่ → ถ้า mtime เก่ากว่า 30 นาที ต้อง mark <code>stale</code></li>
+      </ul>
+      <p>
+        ผลคือ <strong>ทั้ง Claude และ Codex ให้ตัวเลข <span class="tag acc">reported</span> ได้ทั้งคู่</strong>
+        ส่วน calibration heuristic ที่เคยเป็นแกนหลัก ถูกลดชั้นไปเป็น fallback เผื่อวันที่ schema ของแอปเปลี่ยน
+        (ไฟล์มี <code>version</code> อยู่แล้ว — ตอนนี้ = 2 → เช็คก่อน parse เสมอ)
+      </p>
+      <p>
+        ส่วน <code>~/.claude/projects/**/*.jsonl</code> ยังใช้อยู่ แต่เปลี่ยนหน้าที่: เป็นแหล่งของสิ่งที่ไฟล์ข้างบนไม่มี —
+        token แยกตาม model, ต่อ project, และ cost เป็น USD
+      </p>
+    </div>
+
+    <div class="callout col" style="max-width:none">
+      <p class="kicker">แต่มีเงื่อนไขหนึ่งข้อ — และมันกระทบคุณโดยตรง</p>
+      <p>
+        ไฟล์นี้มีเฉพาะ account ที่ใช้ผ่าน <strong>desktop app</strong> เท่านั้น
+        account ที่คุณเปิดบน browser จะ<strong>ไม่มีข้อมูลใดๆ ให้อ่านเลย</strong>
+      </p>
+      <p style="margin-bottom:0">
+        ทางแก้: Claude.app เป็น Electron และ Electron Framework รองรับ <code>--user-data-dir</code> (ตรวจแล้ว)
+        → เปิด instance ที่สองแยก profile ให้ account ที่สอง แล้วมันจะได้
+        <code>plan-usage-history.json</code> ของตัวเองพร้อม <code>org</code> คนละ UUID
+      </p>
+    </div>
+  </div>
+</section>
+
+<section>
+  <div class="wrap">
+    <p class="kicker">Implementation Plan</p>
+    <h2>แปดเฟส · ทุกเฟสจบด้วยของที่รันได้จริง</h2>
+    <p class="col lede">
+      ลำดับถูกจัดให้ทำตัวที่ได้ข้อมูลจริงก่อน (Codex) เพื่อใช้เป็นต้นแบบให้ adapter ตัวอื่น
+      และมี CLI ก่อนมี UI เพื่อพิสูจน์ว่าเลขถูกก่อนจะเสียเวลากับ pixel
+    </p>
+
+    <div class="phases">
+      <div class="phase">
+        <span class="phase-n">00</span>
+        <div>
+          <p class="phase-t">Scaffold</p>
+          <p class="phase-d">Next.js 16 + TS + Tailwind + shadcn · โครง <code>lib/adapters</code>,
+            <code>lib/calc</code>, <code>lib/db</code> · <code>npm run probe</code> รันได้</p>
+        </div>
+        <span class="phase-days">0.5 วัน</span>
+      </div>
+      <div class="phase">
+        <span class="phase-n">01</span>
+        <div>
+          <p class="phase-t">Domain + สอง adapter ที่ให้ตัวเลขจริง</p>
+          <p class="phase-d">Types + Drizzle schema · <code>codex-local</code> อ่าน <code>rate_limits</code> ·
+            <code>claude-desktop-plan-usage</code> อ่าน <code>fh</code>/<code>sd</code>/<code>xu</code> + derive เวลารีเซ็ต
+            <br><em>เสร็จเมื่อ:</em> <code>npm run probe</code> ให้ % ตรงกับที่ codex TUI และหน้า /usage ในแอป Claude แสดง</p>
+        </div>
+        <span class="phase-days">1.5 วัน</span>
+      </div>
+      <div class="phase">
+        <span class="phase-n">02</span>
+        <div>
+          <p class="phase-t">Backfill 30 วัน + breakdown ต่อ model</p>
+          <p class="phase-d">import ประวัติ 1,851 samples ที่มีอยู่แล้ว · JSONL parser แบบ incremental
+            (byte offset + dedupe ด้วย <code>requestId</code>) เพื่อทำ breakdown ต่อ model และ cost ·
+            calibration ลดชั้นเป็น fallback
+            <br><em>เสร็จเมื่อ:</em> กราฟ 30 วันขึ้นทันทีตั้งแต่รันครั้งแรก และลบไฟล์ plan-usage ชั่วคราวแล้วการ์ดตกไปโหมด calibrating ไม่ crash</p>
+        </div>
+        <span class="phase-days">1.5 วัน</span>
+      </div>
+      <div class="phase mvp">
+        <span class="phase-n">03</span>
+        <div>
+          <p class="phase-t">API + SSE + Wall UI</p>
+          <p class="phase-d">Scheduler ใน <code>instrumentation.ts</code> + chokidar ·
+            <code>/api/state</code>, <code>/api/stream</code>, <code>/api/ingest</code> ·
+            การ์ด ring gauge + countdown + sparkline + badge
+            <br><em>เสร็จเมื่อ:</em> เปิดจอทิ้ง 1 ชม. ตัวเลขขยับตามจริง ปิด server แล้ว UI reconnect เอง</p>
+          <span class="mvp-flag">◆ จบเฟสนี้ = MVP ที่ใช้งานได้จริง · สะสม 5.5 วัน · account แยกด้วย org UUID</span>
+        </div>
+        <span class="phase-days">2 วัน</span>
+      </div>
+      <div class="phase">
+        <span class="phase-n">04</span>
+        <div>
+          <p class="phase-t">Alerts + Settings</p>
+          <p class="phase-d">threshold 70/90% ยิงครั้งเดียวต่อหน้าต่าง · webhook (Slack/Discord/ntfy) +
+            macOS notification · หน้า settings ที่ test connection แล้วบอกว่า "อ่านได้ 55 ไฟล์ record ล่าสุด 2 นาทีที่แล้ว"</p>
+        </div>
+        <span class="phase-days">1 วัน</span>
+      </div>
+      <div class="phase">
+        <span class="phase-n">05</span>
+        <div>
+          <p class="phase-t">Official API adapters</p>
+          <p class="phase-d">OpenRouter → Anthropic Admin → OpenAI Admin · ตารางราคาอยู่ใน
+            <code>config/pricing.json</code> ที่แก้เองได้ (ราคาเปลี่ยนบ่อย ห้าม hardcode)
+            <br><em>เสร็จเมื่อ:</em> cost ที่คำนวณเองต่างจาก cost_report น้อยกว่า 5%</p>
+        </div>
+        <span class="phase-days">1 วัน</span>
+      </div>
+      <div class="phase">
+        <span class="phase-n">06</span>
+        <div>
+          <p class="phase-t">Kiosk packaging</p>
+          <p class="phase-d">launchd plist (RunAtLoad + KeepAlive) · Chrome <code>--kiosk</code> ·
+            <code>caffeinate -d</code> กันจอดับ · ทางเลือก Dockerfile ที่ mount <code>~/.claude:ro</code></p>
+        </div>
+        <span class="phase-days">0.5 วัน</span>
+      </div>
+      <div class="phase">
+        <span class="phase-n">07</span>
+        <div>
+          <p class="phase-t">Detail view + history</p>
+          <p class="phase-d">กราฟ token/ชม. 7 วัน · breakdown ตาม model · ประวัติ limit hits ·
+            rollup ข้อมูลเก่ากว่า 90 วัน · export CSV</p>
+        </div>
+        <span class="phase-days">1 วัน</span>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section>
+  <div class="wrap">
+    <p class="kicker">ความเสี่ยง</p>
+    <h2>สิ่งที่จะพัง และวิธีรับมือ</h2>
+    <div class="scroll" style="margin-top:20px">
+      <table>
+        <thead><tr><th>ความเสี่ยง</th><th>ผลกระทบ</th><th>ทางรับมือ</th></tr></thead>
+        <tbody>
+          <tr><td>Schema ของ log เปลี่ยน</td><td>adapter พังเงียบ</td>
+            <td>zod validate ทุก record · ถ้า parse ไม่ผ่านเกิน 5% ให้การ์ดขึ้น error ไม่ใช่แสดงเลขผิด</td></tr>
+          <tr><td><code>plan-usage-history.json</code> เป็น internal format</td><td>schema เปลี่ยนได้ทุกเวอร์ชันของแอป</td>
+            <td>ไฟล์มี <code>version</code> อยู่แล้ว (ตอนนี้ = 2) → เช็คก่อน parse ถ้าไม่รู้จักให้ขึ้น error พร้อมบอกเวอร์ชันที่เจอ · calibration เดิมยังเป็น fallback</td></tr>
+          <tr><td>แอป Claude ปิดอยู่</td><td>% ไม่อัปเดต</td>
+            <td>เทียบ mtime ของไฟล์ → mark <code>stale</code> แล้วหรี่การ์ด</td></tr>
+          <tr><td>Codex ค้างเมื่อไม่มี session</td><td>เห็น % เก่า</td>
+            <td>mark <code>stale</code> ตามอายุ sample แล้วหรี่การ์ดลง 40%</td></tr>
+          <tr><td>Account ที่สองอยู่บน browser</td><td>ไม่มีข้อมูลให้อ่านเลย</td>
+            <td>ย้ายไป desktop instance ที่สองด้วย <code>--user-data-dir</code> · ถ้าทำไม่ได้ การ์ดขึ้น <code>unconfigured</code> ตรงๆ ไม่เดา</td></tr>
+          <tr><td>JSONL โตขึ้นเรื่อยๆ</td><td>สแกนช้าลง</td>
+            <td>byte-offset incremental + ยุบข้อมูลเก่ากว่า 90 วันเป็น rollup รายชั่วโมง</td></tr>
+          <tr><td>API key รั่ว</td><td>เสียหายจริง</td>
+            <td>bind 127.0.0.1 · <code>.env.local</code> gitignored · redact ค่า key ใน log และ error ทุกจุด</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</section>
+
+<section>
+  <div class="wrap">
+    <p class="kicker">คำถามก่อน Phase 1 — ปิดแล้ว</p>
+    <h2>เหลือสิ่งเดียวที่ยังบล็อกอยู่</h2>
+    <div class="qs">
+      <div class="q">
+        <h4>จอเป็นเครื่องเดียวกับที่รัน CLI ✓</h4>
+        <p>ใช่ → ใช้สถาปัตยกรรมเครื่องเดียวได้เลย ไม่ต้องทำ collector ประหยัดไป 1 วัน</p>
+      </div>
+      <div class="q">
+        <h4>2 Claude accounts อยู่คนละ browser / GUI app</h4>
+        <p>ต้องย้ายทั้งสองไปอยู่บน desktop app — account ที่อยู่บน browser ไม่มีข้อมูลให้อ่านเลย
+          นี่คือสิ่งเดียวที่ต้องเปลี่ยนพฤติกรรมการใช้งาน</p>
+      </div>
+      <div class="q">
+        <h4>Admin API key ระดับ org — ยังไม่แน่ใจ</h4>
+        <p>เลื่อน Phase 5 ไปหลัง MVP ได้ ไม่กระทบอะไร · เช็คได้ที่
+          console.anthropic.com → Settings → API keys (ถ้าจ่ายแค่ Max subscription จะไม่มี)</p>
+      </div>
+      <div class="q">
+        <h4>เจ้าอื่นๆ — เผื่อไว้ ไม่ต้องทำตอนนี้</h4>
+        <p>Phase 0–1 วาง adapter registry + <code>POST /api/ingest</code> ไว้แล้ว
+          เพิ่มเจ้าใหม่ = เขียนไฟล์เดียวใน <code>lib/adapters/</code> ไม่ต้องแก้ core</p>
+      </div>
+    </div>
+
+    <div class="callout" style="margin-top:32px">
+      <p class="kicker">ทดสอบข้อนี้ก่อน — ใช้เวลา 2 นาที</p>
+      <p>เปิด Claude instance ที่สองแยก profile แล้วล็อกอินด้วย account ที่สอง:</p>
+      <pre style="margin:0 0 14px;padding:14px 16px;background:var(--surface);border:1px solid var(--line);border-radius:8px;font-family:var(--f-mono);font-size:12.5px;overflow-x:auto"><code style="background:none;border:none;padding:0">open -na Claude --args --user-data-dir="$HOME/Library/Application Support/Claude-b"</code></pre>
+      <p>แล้วเช็คว่ามีไฟล์เกิดขึ้นไหม:</p>
+      <pre style="margin:0 0 14px;padding:14px 16px;background:var(--surface);border:1px solid var(--line);border-radius:8px;font-family:var(--f-mono);font-size:12.5px;overflow-x:auto"><code style="background:none;border:none;padding:0">ls -la "$HOME/Library/Application Support/Claude-b/plan-usage-history.json"</code></pre>
+      <p style="margin-bottom:0">
+        <strong>ผ่าน</strong> → แผนนี้ใช้ได้ทั้งหมดตามที่เขียน เริ่ม Phase 0–1 ได้เลย ·
+        <strong>ไม่ผ่าน</strong> → ใช้วิธีสำเนา <code>.app</code> แล้วแก้ <code>CFBundleIdentifier</code> แทน
+        (วิธีเดียวกับที่ทำให้คุณมี <code>ChatGPT 2.app</code> อยู่แล้ว) — บวก 0.5 วัน
+      </p>
+    </div>
+  </div>
+</section>
+
+<footer>
+  <div class="wrap">
+    AI Usage Wallboard · spec v0.2 · 2026-09-01 · ตรวจสอบแหล่งข้อมูลจากเครื่องจริงแล้ว
+  </div>
+</footer>
+
+<script>
+(function(){
+  var els = document.querySelectorAll('[data-countdown]');
+  var clock = document.getElementById('clock');
+  var base = 14*3600 + 32*60 + 7;
+  function fmt(s){
+    if (s < 0) s = 0;
+    var h = Math.floor(s/3600), m = Math.floor(s%3600/60), sec = s%60;
+    return h + ':' + String(m).padStart(2,'0') + ':' + String(sec).padStart(2,'0');
+  }
+  function tick(){
+    els.forEach(function(el){
+      var v = parseInt(el.getAttribute('data-countdown'), 10) - 1;
+      if (v < 0) v = 0;
+      el.setAttribute('data-countdown', v);
+      el.textContent = fmt(v);
+    });
+    base += 1;
+    if (clock) clock.textContent = fmt(base % 86400).padStart(8,'0');
+  }
+  setInterval(tick, 1000);
+})();
+</script>

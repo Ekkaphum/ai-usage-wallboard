@@ -1,0 +1,26 @@
+{
+  "_comment": "USD per 1,000,000 tokens. Rates change — edit this file rather than the code. Source: Anthropic pricing page.",
+  "_updated": "2026-09-01",
+  "multipliers": {
+    "_comment": "Applied to the model's input rate.",
+    "cacheRead": 0.1,
+    "cacheWrite5m": 1.25,
+    "cacheWrite1h": 2.0
+  },
+  "aliases": {
+    "opus": "claude-opus-5",
+    "sonnet": "claude-sonnet-5",
+    "haiku": "claude-haiku-4-5"
+  },
+  "models": {
+    "claude-fable-5":   { "input": 10.0, "output": 50.0 },
+    "claude-mythos-5":  { "input": 10.0, "output": 50.0 },
+    "claude-opus-5":    { "input": 5.0,  "output": 25.0 },
+    "claude-opus-4-8":  { "input": 5.0,  "output": 25.0 },
+    "claude-opus-4-7":  { "input": 5.0,  "output": 25.0 },
+    "claude-opus-4-6":  { "input": 5.0,  "output": 25.0 },
+    "claude-sonnet-5":  { "input": 2.0,  "output": 10.0 },
+    "claude-sonnet-4-6":{ "input": 3.0,  "output": 15.0 },
+    "claude-haiku-4-5": { "input": 1.0,  "output": 5.0 }
+  }
+}

@@ -1,0 +1,33 @@
+{
+  "accounts": [
+    {
+      "id": "claude-personal",
+      "adapter": "claude-desktop-plan-usage",
+      "displayName": "Claude \u00b7 personal",
+      "appDataDir": "~/Library/Application Support/Claude",
+      "enabled": true
+    },
+    {
+      "id": "claude-work",
+      "adapter": "claude-desktop-plan-usage",
+      "displayName": "Claude \u00b7 work",
+      "appDataDir": "~/Library/Application Support/Claude-b",
+      "enabled": true
+    },
+    {
+      "id": "codex-main",
+      "adapter": "codex-local",
+      "displayName": "Codex \u00b7 main",
+      "codexHome": "~/.codex",
+      "enabled": true
+    },
+    {
+      "id": "claude-code-personal",
+      "adapter": "claude-code-local",
+      "displayName": "Claude Code \u00b7 personal",
+      "claudeConfigDir": "~/.claude",
+      "attachTo": "claude-personal",
+      "enabled": true
+    }
+  ]
+}

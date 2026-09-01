@@ -1,0 +1,18 @@
+services:
+  wallboard:
+    build:
+      context: ..
+      dockerfile: deploy/Dockerfile
+    # Loopback only, same reasoning as the launchd agent.
+    ports: ["127.0.0.1:4000:4000"]
+    volumes:
+      # Read-only: the board must never be able to modify the logs it reads.
+      - "${HOME}/.claude:/host/.claude:ro"
+      - "${HOME}/.codex:/host/.codex:ro"
+      - "${HOME}/Library/Application Support/Claude:/host/claude-app:ro"
+      - "./data:/app/data"
+      - "./config:/app/config"
+    environment:
+      # Paths inside the container; point config/accounts.json at these.
+      TZ: "${TZ:-Asia/Bangkok}"
+    restart: unless-stopped
