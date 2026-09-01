@@ -66,7 +66,7 @@ export const anthropicAdmin: ProviderAdapter = {
     try {
       key = requireEnv(envName)
     } catch (error) {
-      return [unconfigured(cfg.id, cfg.displayName, 'anthropic', 'api', (error as Error).message)]
+      return [unconfigured(cfg.id, cfg.displayName, 'anthropic', 'api', (error as Error).message, cfg.expectedEmail)]
     }
 
     const headers = { 'x-api-key': key, 'anthropic-version': VERSION }

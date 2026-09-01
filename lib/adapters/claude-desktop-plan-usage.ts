@@ -175,7 +175,11 @@ export const claudeDesktopPlanUsage: ProviderAdapter = {
     if (!loaded) {
       return [unconfigured(
         cfg.id, cfg.displayName, 'anthropic', 'claude-desktop',
-        `No ${PLAN_USAGE_FILE} in ${dir}. Sign in to this account in a Claude desktop window pointed at that profile, then use it once.`,
+        [
+          `ยังไม่ได้เชื่อมต่อ — ไม่พบ ${PLAN_USAGE_FILE} ใน ${dir}`,
+          'account นี้ต้องเปิดผ่าน Claude desktop จึงจะมีข้อมูล (ใช้ผ่าน browser อย่างเดียวจะไม่มีไฟล์ให้อ่าน)',
+          `เปิด instance แยก:  open -na Claude --args --user-data-dir="${dir}"`,
+        ].join('\n'), cfg.expectedEmail,
       )]
     }
 
@@ -194,6 +198,7 @@ export const claudeDesktopPlanUsage: ProviderAdapter = {
         cfg.org
           ? `No samples for org ${cfg.org} in ${loaded.file}.`
           : `${loaded.file} has no samples yet.`,
+        cfg.expectedEmail,
       )]
     }
 

@@ -202,7 +202,10 @@ function NoData({ message }: { message: string | null }) {
         <Ring percent={null} label="usage" />
         <p className="font-mono text-[10.5px] uppercase tracking-[0.1em] text-dim">ไม่มีข้อมูล</p>
       </div>
-      {message && <p className="text-[12px] leading-relaxed text-dim">{message}</p>}
+      {message && (
+        // Setup instructions arrive as several lines; keep the breaks.
+        <p className="whitespace-pre-line text-[11.5px] leading-relaxed text-dim">{message}</p>
+      )}
     </div>
   )
 }

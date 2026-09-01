@@ -27,6 +27,12 @@ const AccountConfigSchema = z.object({
   baseUrl: z.string().url().optional(),
   /** Anthropic/OpenAI admin reports: which workspace or project to scope to. */
   scopeId: z.string().optional(),
+  /**
+   * The account this card is meant to show, before anything has been read.
+   * Lets a card that is not connected yet still name what it is waiting for,
+   * instead of appearing as an anonymous empty slot.
+   */
+  expectedEmail: z.string().optional(),
   /** Restrict a Claude profile to one org UUID when its file holds several. */
   org: z.string().optional(),
   /**

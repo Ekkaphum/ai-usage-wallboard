@@ -54,7 +54,7 @@ export const openaiAdmin: ProviderAdapter = {
     try {
       key = requireEnv(envName)
     } catch (error) {
-      return [unconfigured(cfg.id, cfg.displayName, 'openai', 'api', (error as Error).message)]
+      return [unconfigured(cfg.id, cfg.displayName, 'openai', 'api', (error as Error).message, cfg.expectedEmail)]
     }
 
     const headers = { Authorization: `Bearer ${key}` }

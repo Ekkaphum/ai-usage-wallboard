@@ -138,7 +138,7 @@ export const codexLocal: ProviderAdapter = {
     if (!existsSync(sessionsDir)) {
       return [unconfigured(
         cfg.id, cfg.displayName, 'openai', 'codex-cli',
-        `No sessions directory at ${sessionsDir}. Run codex once with CODEX_HOME set to ${home}.`,
+        `No sessions directory at ${sessionsDir}. Run codex once with CODEX_HOME set to ${home}.`, cfg.expectedEmail,
       )]
     }
 
@@ -146,7 +146,7 @@ export const codexLocal: ProviderAdapter = {
     if (files.length === 0) {
       return [unconfigured(
         cfg.id, cfg.displayName, 'openai', 'codex-cli',
-        `No codex session logs touched in the last 48h under ${sessionsDir}.`,
+        `No codex session logs touched in the last 48h under ${sessionsDir}.`, cfg.expectedEmail,
       )]
     }
 
@@ -166,7 +166,7 @@ export const codexLocal: ProviderAdapter = {
     if (!newest || !newest.payload.rate_limits) {
       return [unconfigured(
         cfg.id, cfg.displayName, 'openai', 'codex-cli',
-        `Found ${files.length} session log(s) under ${sessionsDir} but none carried a rate_limits snapshot yet.`,
+        `Found ${files.length} session log(s) under ${sessionsDir} but none carried a rate_limits snapshot yet.`, cfg.expectedEmail,
       )]
     }
 

@@ -3,28 +3,31 @@
     {
       "id": "claude-personal",
       "adapter": "claude-desktop-plan-usage",
-      "displayName": "Claude \u00b7 personal",
+      "displayName": "Claude · ส่วนตัว",
+      "expectedEmail": "you@example.com",
       "appDataDir": "~/Library/Application Support/Claude",
       "enabled": true
     },
     {
-      "id": "claude-work",
+      "id": "claude-bluesharp",
       "adapter": "claude-desktop-plan-usage",
-      "displayName": "Claude \u00b7 work",
-      "appDataDir": "~/Library/Application Support/Claude-b",
+      "displayName": "Claude · Bluesharp",
+      "expectedEmail": "you@example.com",
+      "appDataDir": "~/Library/Application Support/Claude-bluesharp",
       "enabled": true
     },
     {
       "id": "codex-main",
       "adapter": "codex-local",
-      "displayName": "Codex \u00b7 main",
+      "displayName": "Codex",
+      "expectedEmail": "you@example.com",
       "codexHome": "~/.codex",
       "enabled": true
     },
     {
       "id": "claude-code-personal",
       "adapter": "claude-code-local",
-      "displayName": "Claude Code \u00b7 personal",
+      "displayName": "Claude Code · ส่วนตัว",
       "claudeConfigDir": "~/.claude",
       "attachTo": "claude-personal",
       "enabled": true

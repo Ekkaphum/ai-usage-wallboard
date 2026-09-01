@@ -119,15 +119,30 @@ export function makeWindow(w: Partial<LimitWindow> & Pick<LimitWindow, 'key' | '
   }
 }
 
-/** Builds the state shown when an adapter cannot read its source at all. */
-export function unconfigured(configId: string, displayName: string, provider: AccountState['provider'], surface: AccountState['surface'], message: string): AccountState {
+/**
+ * Builds the state shown when an adapter cannot read its source at all.
+ *
+ * `expectedEmail` keeps the card identifiable while it waits: a board with
+ * three accounts should show three named cards, one of which is not connected
+ * yet — not two named cards and an anonymous gap.
+ */
+export function unconfigured(
+  configId: string,
+  displayName: string,
+  provider: AccountState['provider'],
+  surface: AccountState['surface'],
+  message: string,
+  expectedEmail?: string,
+): AccountState {
   return {
     accountId: configId,
     configId,
     provider,
     surface,
     displayName,
-    identity: null,
+    identity: expectedEmail
+      ? { email: expectedEmail, name: null, organizationName: null, accountUuid: null, organizationUuid: null }
+      : null,
     planType: null,
     windows: [],
     burn: emptyBurn(),

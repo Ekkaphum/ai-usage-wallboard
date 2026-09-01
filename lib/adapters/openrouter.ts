@@ -30,7 +30,7 @@ export const openrouter: ProviderAdapter = {
     try {
       key = requireEnv(envName)
     } catch (error) {
-      return [unconfigured(cfg.id, cfg.displayName, 'openrouter', 'api', (error as Error).message)]
+      return [unconfigured(cfg.id, cfg.displayName, 'openrouter', 'api', (error as Error).message, cfg.expectedEmail)]
     }
 
     const data = (await cached(`openrouter:${cfg.id}`, REMOTE_CACHE_MS, () =>

@@ -326,7 +326,7 @@ export const claudeCodeLocal: ProviderAdapter = {
     if (!existsSync(join(dir, 'projects'))) {
       return [unconfigured(
         cfg.id, cfg.displayName, 'anthropic', 'claude-code',
-        `No projects directory under ${dir}. Run Claude Code once with CLAUDE_CONFIG_DIR set to ${dir}.`,
+        `No projects directory under ${dir}. Run Claude Code once with CLAUDE_CONFIG_DIR set to ${dir}.`, cfg.expectedEmail,
       )]
     }
 
@@ -337,7 +337,7 @@ export const claudeCodeLocal: ProviderAdapter = {
     if (errorRate > MAX_PARSE_ERROR_RATE) {
       const state = unconfigured(
         cfg.id, cfg.displayName, 'anthropic', 'claude-code',
-        `${scan.parseErrors} of ${scan.linesSeen} lines under ${dir} failed to parse (${(errorRate * 100).toFixed(1)}%). The log format has probably changed — refusing to report numbers from a partial read.`,
+        `${scan.parseErrors} of ${scan.linesSeen} lines under ${dir} failed to parse (${(errorRate * 100).toFixed(1)}%). The log format has probably changed — refusing to report numbers from a partial read.`, cfg.expectedEmail,
       )
       state.health = 'error'
       return [state]
