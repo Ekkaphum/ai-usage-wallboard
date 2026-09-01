@@ -99,6 +99,11 @@ export function useNow(seedMs: number, intervalMs = 1000): number {
   const [now, setNow] = useState(seedMs)
 
   useEffect(() => {
+    // Deliberate: the seed is the *server's* clock, kept only so hydration
+    // matches. A wallboard whose countdown is wrong by the render latency is
+    // exactly the bug this exists to avoid, so the real time is adopted on the
+    // first commit rather than a second later at the first tick.
+    // eslint-disable-next-line react-hooks/set-state-in-effect
     setNow(Date.now())
     const timer = setInterval(() => setNow(Date.now()), intervalMs)
     return () => clearInterval(timer)

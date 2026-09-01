@@ -6,7 +6,7 @@ import { UnknownSchemaError } from './types'
 import type { AccountConfig } from '@/lib/config'
 import { expandHome, DEFAULT_CLAUDE_APP_DATA } from '@/lib/domain/paths'
 import {
-  type AccountState, type LimitWindow, FIVE_HOURS_MS, STALE_AFTER_MS,
+  type AccountState, type LimitWindow, STALE_AFTER_MS,
   emptyBurn, makeWindow, unconfigured,
 } from '@/lib/domain/types'
 import { findCurrentBlock, deriveReset, percentPerHour, type PercentPoint } from '@/lib/calc/blocks'

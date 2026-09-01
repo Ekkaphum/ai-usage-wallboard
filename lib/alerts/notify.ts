@@ -32,7 +32,6 @@ function summary(alerts: Alert[]): { title: string; body: string } {
  * to carry UTF-8 in a header, and ntfy decodes them.
  */
 export function encodeHeader(value: string): string {
-  // eslint-disable-next-line no-control-regex
   if (/^[\x20-\x7E]*$/.test(value)) return value
   return `=?UTF-8?B?${Buffer.from(value, 'utf8').toString('base64')}?=`
 }
