@@ -37,17 +37,15 @@ grep INGEST_TOKEN .env.local
 
 ค่านี้ต้องเหมือนกันทั้งสองเครื่อง ถ้าไม่ตรง ingest จะตอบ 401
 
-### 2. เครื่องจอ (Windows) — คำสั่งเดียว
+### 2. เครื่องจอ (Windows) — บรรทัดเดียว
 
-repo เป็น private ต้อง auth ก่อน clone:
+เครื่องเปล่าๆ ไม่ต้องลงอะไรมาก่อน เปิด PowerShell ธรรมดาแล้ววาง:
 
 ```powershell
-winget install -e --id GitHub.cli --accept-source-agreements --accept-package-agreements
-gh auth login
-gh repo clone Ekkaphum/ai-usage-wallboard C:\ai-wallboard
-cd C:\ai-wallboard
-.\deploy\windows\install.ps1
+irm https://raw.githubusercontent.com/Ekkaphum/ai-usage-wallboard/main/deploy/windows/bootstrap.ps1 | iex
 ```
+
+ลง git ให้ถ้ายังไม่มี → clone ไป `C:\ai-wallboard` → เรียก `install.ps1` ต่อ
 
 `install.ps1` ยกสิทธิ์ตัวเองเป็น Administrator และถามแค่สองอย่าง — token กับ IP
 ของเครื่อง Mac (เอาไว้จำกัด firewall) นอกนั้นจัดการเองหมด:

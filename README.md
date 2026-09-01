@@ -96,8 +96,7 @@ server bind `127.0.0.1` เสมอ — มันอ่าน log ในเค�
 ที่คำนวณเสร็จแล้วมาให้ ไม่มี credential วิ่งข้ามเน็ต
 
 ```powershell
-gh repo clone Ekkaphum/ai-usage-wallboard C:\ai-wallboard
-cd C:\ai-wallboard; .\deploy\windows\install.ps1
+irm https://raw.githubusercontent.com/Ekkaphum/ai-usage-wallboard/main/deploy/windows/bootstrap.ps1 | iex
 ```
 
 ```bash

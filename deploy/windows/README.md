@@ -6,11 +6,20 @@ and stores no credentials — a collector elsewhere pushes finished numbers to
 
 ## Install
 
-From an ordinary PowerShell, in the repository root. It elevates itself:
+On a machine with nothing on it — one line, from an ordinary PowerShell:
+
+```powershell
+irm https://raw.githubusercontent.com/Ekkaphum/ai-usage-wallboard/main/deploy/windows/bootstrap.ps1 | iex
+```
+
+That installs git if needed, clones to `C:\ai-wallboard`, and runs the
+installer. If the checkout already exists, run the installer directly instead:
 
 ```powershell
 .\deploy\windows\install.ps1
 ```
+
+Either way it elevates itself.
 
 It asks for two things and handles everything else:
 
@@ -31,7 +40,8 @@ It finishes by printing the exact command to run back on the collector machine.
 
 | | |
 |---|---|
-| `install.ps1` | the one command above |
+| `bootstrap.ps1` | the one-liner above: git + clone + hand off |
+| `install.ps1` | full setup; run directly if the repo is already cloned |
 | `update.ps1` | `git pull` + rebuild + restart, leaving config and token alone |
 | `uninstall.ps1` | removes both tasks, the firewall rule, and the kiosk |
 | `start-server.ps1` | what the startup task runs; usable by hand for debugging |
