@@ -8,6 +8,7 @@ import { loadConfig, CONFIG_PATH } from '@/lib/config'
 import { expandHome, DEFAULT_CLAUDE_APP_DATA, DEFAULT_CODEX_HOME, DEFAULT_CLAUDE_CONFIG_DIR } from '@/lib/domain/paths'
 import type { AccountState } from '@/lib/domain/types'
 import { evaluate } from '@/lib/alerts'
+import { mergeExternal, type ExternalEntry } from '@/lib/runtime/external'
 
 /**
  * The single in-process source of truth the board reads from.
@@ -38,7 +39,7 @@ interface StoreState {
   refreshing: Promise<BoardPayload> | null
   timer: NodeJS.Timeout | null
   debounce: NodeJS.Timeout | null
-  external: Map<string, { state: AccountState; receivedAt: number }>
+  external: Map<string, ExternalEntry>
 }
 
 /**
@@ -61,21 +62,11 @@ function initialState(): StoreState {
 const registry = globalThis as unknown as Record<symbol, StoreState | undefined>
 const state: StoreState = (registry[STORE_KEY] ??= initialState())
 const { emitter, external } = state
-/** Pushed state older than this is dropped rather than shown as current. */
-const EXTERNAL_TTL_MS = 10 * 60_000
 
 function build(snapshot: Snapshot): BoardPayload {
-  const now = Date.now()
-  for (const [id, entry] of external) {
-    if (now - entry.receivedAt > EXTERNAL_TTL_MS) external.delete(id)
-  }
-
-  const byId = new Map(snapshot.accounts.map((a) => [a.accountId, a]))
-  for (const [id, entry] of external) byId.set(id, entry.state)
-
   return {
     generatedAt: snapshot.generatedAt,
-    accounts: [...byId.values()],
+    accounts: snapshot.accounts,
     problems: snapshot.problems,
     history: recentHistory(),
     externalCount: external.size,
@@ -87,7 +78,10 @@ export async function refresh(): Promise<BoardPayload> {
   if (state.refreshing) return state.refreshing
 
   state.refreshing = (async () => {
-    const snapshot = await probeAll()
+    // Merge before recording: on a display-only machine every account arrives
+    // over the wire, and a snapshot that dropped them would leave the history
+    // table — and so every sparkline on the board — permanently empty.
+    const snapshot = mergeExternal(await probeAll(), external, Date.now())
     try {
       recordSnapshot(snapshot)
     } catch (error) {

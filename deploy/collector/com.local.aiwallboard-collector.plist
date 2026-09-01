@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+  <key>Label</key>
+  <string>com.local.aiwallboard-collector</string>
+
+  <!-- __PROJECT_DIR__, __NODE__ and __WALLBOARD_URL__ are filled in by
+       deploy/collector/install-collector.sh. INGEST_TOKEN is deliberately not
+       here: the script reads it from .env.local at runtime instead, so the
+       secret is not copied into a second file outside the repository. -->
+  <key>WorkingDirectory</key>
+  <string>__PROJECT_DIR__</string>
+
+  <key>ProgramArguments</key>
+  <array>
+    <string>__NODE__</string>
+    <string>__PROJECT_DIR__/node_modules/.bin/tsx</string>
+    <string>__PROJECT_DIR__/scripts/collect.ts</string>
+    <string>--interval=60</string>
+  </array>
+
+  <key>EnvironmentVariables</key>
+  <dict>
+    <key>WALLBOARD_URL</key>
+    <string>__WALLBOARD_URL__</string>
+    <key>PATH</key>
+    <string>/usr/local/bin:/usr/bin:/bin:/opt/homebrew/bin</string>
+  </dict>
+
+  <key>RunAtLoad</key>
+  <true/>
+  <!-- The display machine being rebooted, or the network dropping, must not end
+       the collector: it loops internally and launchd restarts it if it dies. -->
+  <key>KeepAlive</key>
+  <true/>
+
+  <key>StandardOutPath</key>
+  <string>__PROJECT_DIR__/data/collector.log</string>
+  <key>StandardErrorPath</key>
+  <string>__PROJECT_DIR__/data/collector.err.log</string>
+</dict>
+</plist>

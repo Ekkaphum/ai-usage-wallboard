@@ -12,7 +12,9 @@
     "test": "vitest run",
     "test:watch": "vitest",
     "alerts": "tsx scripts/alerts.ts",
-    "rollup": "tsx scripts/rollup.ts"
+    "rollup": "tsx scripts/rollup.ts",
+    "collect": "tsx scripts/collect.ts",
+    "start:lan": "next start -H 0.0.0.0"
   },
   "dependencies": {
     "better-sqlite3": "^13.0.3",

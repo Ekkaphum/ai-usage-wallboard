@@ -78,7 +78,7 @@ export function Wall({ initial, kiosk }: WallProps) {
           alignContent: 'center',
         }}
       >
-        {payload.accounts.map((account) => (
+        {payload.accounts.length === 0 ? <Waiting /> : payload.accounts.map((account) => (
           <AccountCard
             key={account.accountId}
             account={account}
@@ -98,6 +98,23 @@ export function Wall({ initial, kiosk }: WallProps) {
           {payload.externalCount > 0 && ` · ${payload.externalCount} account จากเครื่องอื่น`}
         </footer>
       )}
+    </div>
+  )
+}
+
+/**
+ * A display-only board has nothing of its own to read; every card arrives from
+ * a collector on another machine. Until the first push lands the grid is empty,
+ * and an empty grid on a wall is indistinguishable from a broken one.
+ */
+function Waiting() {
+  return (
+    <div className="flex flex-col items-center gap-2 bg-panel px-6 py-16 text-center">
+      <p className="font-mono text-[13px] text-dim">ยังไม่มีข้อมูล</p>
+      <p className="max-w-[42ch] font-mono text-[11.5px] leading-relaxed text-dim opacity-70">
+        เครื่องนี้ไม่มี account ตั้งไว้ในเครื่อง — กำลังรอเครื่องเก็บส่งข้อมูลเข้ามาที่{' '}
+        <span className="text-text">/api/ingest</span>
+      </p>
     </div>
   )
 }

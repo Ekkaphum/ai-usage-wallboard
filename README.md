@@ -66,8 +66,9 @@ npm test                          # unit + integration test
 | `GET /api/export?account=` | CSV ของ token รายชั่วโมง 7 วัน |
 
 **Ingest ปิดอยู่โดย default** — ถ้าไม่ได้ตั้ง `INGEST_TOKEN` ใน `.env.local` จะตอบ 401 ทุก request
-(fail closed ไม่ใช่ fail open) และ state ที่ push เข้ามาเก็บใน memory มี TTL 10 นาที
-หายเมื่อ restart — collector ฝั่งโน้นต้อง push ซ้ำตามรอบของมันเอง
+(fail closed ไม่ใช่ fail open) state ที่ push เข้ามาเก็บใน memory (หายเมื่อ restart)
+แต่ถูกบันทึกลง DB ด้วย จอที่ไม่ได้อ่านไฟล์อะไรเลยจึงมี sparkline ของตัวเอง
+ถ้าเงียบเกิน **5 นาที** การ์ดจะขึ้น `stale` พร้อมบอกว่าค้างมานานเท่าไหร่ และหายจริงเมื่อครบ 24 ชม.
 
 ## การแจ้งเตือน
 
@@ -79,6 +80,8 @@ block ถัดไปจึงแจ้งได้ใหม่ · เปอร�
 
 ## เอาขึ้นจอจริง
 
+### จอเครื่องเดียวกับที่ทำงาน (macOS)
+
 ```bash
 deploy/install.sh    # build + ติดตั้ง launchd agent (RunAtLoad + KeepAlive)
 deploy/kiosk.sh      # เปิด Chrome fullscreen + caffeinate กันจอดับ
@@ -86,6 +89,21 @@ deploy/kiosk.sh      # เปิด Chrome fullscreen + caffeinate กันจ�
 
 server bind `127.0.0.1` เสมอ — มันอ่าน log ในเครื่องและเขียน config ได้
 ถ้าจะเปิดออก LAN ให้ตั้ง `WALLBOARD_READONLY=1` ด้วย
+
+### แยกจอไปอีกเครื่อง (Windows)
+
+เครื่องจอไม่ต้องล็อกอิน account ไหนเลย — เครื่องที่ล็อกอินจริงเป็นฝ่ายส่งตัวเลข
+ที่คำนวณเสร็จแล้วมาให้ ไม่มี credential วิ่งข้ามเน็ต
+
+```powershell
+.\deploy\windows\setup.ps1 -IngestToken "<token>" -AllowFrom "<ip ของเครื่อง Mac>"
+```
+
+```bash
+./deploy/collector/install-collector.sh http://<ip เครื่องจอ>:4000
+```
+
+รายละเอียดทั้งหมดอยู่ใน [docs/REMOTE.md](docs/REMOTE.md)
 
 ## การอัปเดตหน้าจอ
 

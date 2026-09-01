@@ -2,7 +2,7 @@
 # Opens the board fullscreen and keeps the display awake while it is up.
 set -euo pipefail
 
-URL="${WALLBOARD_URL:-http://127.0.0.1:4000/?kiosk=1}"
+URL="${WALLBOARD_KIOSK_URL:-http://127.0.0.1:4000/?kiosk=1}"
 # A separate Chrome profile so kiosk mode cannot disturb the normal browser
 # session, and so restore-tabs prompts never appear on the wall.
 PROFILE="${WALLBOARD_CHROME_PROFILE:-$HOME/.cache/ai-wallboard-chrome}"
