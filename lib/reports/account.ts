@@ -15,6 +15,9 @@ export interface AccountReport {
   accountId: string
   usageId: string
   displayName: string
+  email: string | null
+  accountName: string | null
+  organizationName: string | null
   provider: string
   surface: string
   planType: string | null
@@ -28,10 +31,10 @@ export interface AccountReport {
 
 const DAYS = 7
 
-export function listAccounts(): { id: string; displayName: string }[] {
+export function listAccounts(): { id: string; displayName: string; email: string | null }[] {
   const db = getDb()
-  return db.all<{ id: string; displayName: string }>(sql`
-    SELECT id, display_name AS displayName FROM accounts ORDER BY display_name
+  return db.all<{ id: string; displayName: string; email: string | null }>(sql`
+    SELECT id, display_name AS displayName, email FROM accounts ORDER BY display_name
   `)
 }
 
@@ -66,8 +69,12 @@ export function buildReport(accountId: string, usageIdOverride?: string, now = D
   const db = getDb()
   const since = now - DAYS * 24 * 3_600_000
 
-  const account = db.get<{ id: string; display_name: string; provider: string; surface: string; plan_type: string | null }>(sql`
-    SELECT id, display_name, provider, surface, plan_type FROM accounts WHERE id = ${accountId}
+  const account = db.get<{
+    id: string; display_name: string; provider: string; surface: string; plan_type: string | null
+    email: string | null; account_name: string | null; organization_name: string | null
+  }>(sql`
+    SELECT id, display_name, provider, surface, plan_type, email, account_name, organization_name
+    FROM accounts WHERE id = ${accountId}
   `)
   if (!account) return null
 
@@ -123,6 +130,9 @@ export function buildReport(accountId: string, usageIdOverride?: string, now = D
     accountId,
     usageId,
     displayName: account.display_name,
+    email: account.email,
+    accountName: account.account_name,
+    organizationName: account.organization_name,
     provider: account.provider,
     surface: account.surface,
     planType: account.plan_type,

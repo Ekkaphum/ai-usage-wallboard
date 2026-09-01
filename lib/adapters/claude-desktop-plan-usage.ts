@@ -10,6 +10,7 @@ import {
   emptyBurn, makeWindow, unconfigured,
 } from '@/lib/domain/types'
 import { findCurrentBlock, deriveReset, percentPerHour, type PercentPoint } from '@/lib/calc/blocks'
+import { claudeIdentityDirectory, desktopProfileAccountUuid, type AccountIdentity } from '@/lib/identity'
 
 /**
  * Reads the plan usage history the Claude desktop app maintains for its own
@@ -70,6 +71,7 @@ export function buildState(
   samples: PlanUsageSample[],
   now: number,
   multipleOrgs: boolean,
+  identity: AccountIdentity | null = null,
 ): AccountState {
   const last = samples[samples.length - 1]
   const series = fivePercentSeries(samples)
@@ -143,7 +145,15 @@ export function buildState(
     provider: 'anthropic',
     surface: 'claude-desktop',
     displayName: multipleOrgs ? `${cfg.displayName} (${org.slice(0, 8)})` : cfg.displayName,
-    planType: null,
+    identity: identity && {
+      email: identity.email,
+      name: identity.name,
+      organizationName: identity.organizationName,
+      accountUuid: identity.accountUuid,
+      organizationUuid: identity.organizationUuid ?? org,
+    },
+    // The plan the account is actually on, rather than one typed into config.
+    planType: identity?.organizationType ?? null,
     windows,
     burn,
     spend: { todayUsd: null, weekUsd: null },
@@ -187,10 +197,21 @@ export const claudeDesktopPlanUsage: ProviderAdapter = {
       )]
     }
 
+    /*
+     * The usage file knows the org but not who is signed in. Claude Code's
+     * config knows all three ids, so joining on the org — or, failing that, on
+     * the account uuid this desktop profile registered — recovers the email.
+     */
+    const directory = claudeIdentityDirectory(cfg.claudeConfigDir ? [cfg.claudeConfigDir] : [])
+    const profileAccountUuid = desktopProfileAccountUuid(dir)
+
     const multiple = byOrg.size > 1
     return [...byOrg.entries()].map(([org, samples]) => {
       samples.sort((a, b) => a.t - b.t)
-      return buildState(cfg, org, samples, now, multiple)
+      const identity = directory.get(org)
+        ?? (profileAccountUuid ? directory.get(profileAccountUuid) : undefined)
+        ?? null
+      return buildState(cfg, org, samples, now, multiple, identity)
     })
   },
 }

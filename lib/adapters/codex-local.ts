@@ -9,6 +9,7 @@ import {
   emptyBurn, makeWindow, unconfigured,
 } from '@/lib/domain/types'
 import { findLastLine } from './jsonl'
+import { codexIdentity } from '@/lib/identity'
 
 /**
  * Reads the rate-limit snapshot Codex attaches to every `token_count` event in
@@ -188,6 +189,7 @@ export const codexLocal: ProviderAdapter = {
 
     const age = now - newestMs
     const usage = newest.payload.info?.total_token_usage
+    const identity = codexIdentity(home)
 
     return [{
       accountId: cfg.id,
@@ -195,6 +197,13 @@ export const codexLocal: ProviderAdapter = {
       provider: 'openai',
       surface: 'codex-cli',
       displayName: cfg.displayName,
+      identity: identity && {
+        email: identity.email,
+        name: identity.name,
+        organizationName: identity.organizationName,
+        accountUuid: identity.accountUuid,
+        organizationUuid: identity.organizationUuid,
+      },
       planType: rl.plan_type ?? null,
       windows,
       burn: emptyBurn(),

@@ -60,6 +60,15 @@ export interface ModelBreakdownEntry {
   costUsd: number | null
 }
 
+/** Who a card actually belongs to, resolved from local credentials. */
+export interface AccountIdentityRef {
+  email: string | null
+  name: string | null
+  organizationName: string | null
+  accountUuid: string | null
+  organizationUuid: string | null
+}
+
 export interface AccountState {
   /** Stable identity. Prefer a provider-issued id (Claude's org UUID) over config order. */
   accountId: string
@@ -68,6 +77,11 @@ export interface AccountState {
   provider: 'anthropic' | 'openai' | 'openrouter' | 'google' | 'github' | 'custom'
   surface: 'claude-desktop' | 'claude-code' | 'codex-cli' | 'api' | 'web'
   displayName: string
+  /**
+   * The real account behind the card. The display name is only a label the
+   * config chose; without this there is no way to tell two cards apart.
+   */
+  identity: AccountIdentityRef | null
   planType: string | null
   windows: LimitWindow[]
   burn: BurnRate
@@ -113,6 +127,7 @@ export function unconfigured(configId: string, displayName: string, provider: Ac
     provider,
     surface,
     displayName,
+    identity: null,
     planType: null,
     windows: [],
     burn: emptyBurn(),

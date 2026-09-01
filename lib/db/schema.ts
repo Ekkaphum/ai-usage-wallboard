@@ -8,6 +8,10 @@ export const accounts = sqliteTable('accounts', {
   surface: text('surface').notNull(),
   displayName: text('display_name').notNull(),
   planType: text('plan_type'),
+  /** Resolved from local credentials — which account this card really is. */
+  email: text('email'),
+  accountName: text('account_name'),
+  organizationName: text('organization_name'),
   firstSeenAt: integer('first_seen_at').notNull(),
   lastSeenAt: integer('last_seen_at').notNull(),
 })

@@ -3,6 +3,7 @@ import { join } from 'node:path'
 import type { AccountConfig } from '@/lib/config'
 import { expandHome, DEFAULT_CLAUDE_APP_DATA, DEFAULT_CODEX_HOME, DEFAULT_CLAUDE_CONFIG_DIR } from '@/lib/domain/paths'
 import { PLAN_USAGE_FILE } from '@/lib/adapters/claude-desktop-plan-usage'
+import { claudeIdentityDirectory, desktopProfileAccountUuid, codexIdentity } from '@/lib/identity'
 
 /**
  * Answers "is this account wired up correctly?" with specifics rather than a
@@ -71,10 +72,21 @@ export function diagnose(account: AccountConfig): Diagnosis {
         if (samples.length === 0) return fail(file, 'ไฟล์ยังไม่มี sample')
         const orgs = new Set(samples.map((s) => s.org))
         const newest = Math.max(...samples.map((s) => s.t))
+
+        // Naming the signed-in account is the point of this check: a path that
+        // reads fine but belongs to the wrong login looks identical otherwise.
+        const directory = claudeIdentityDirectory(account.claudeConfigDir ? [account.claudeConfigDir] : [])
+        const profileUuid = desktopProfileAccountUuid(dir)
+        const who = [...orgs]
+          .map((o) => directory.get(o) ?? (profileUuid ? directory.get(profileUuid) : undefined))
+          .find(Boolean)
+
         return {
           ok: true,
           path: file,
           facts: [
+            who?.email ? `ล็อกอินเป็น ${who.email}${who.organizationType ? ` (${who.organizationType})` : ''}`
+                       : 'อ่านอีเมลของ account นี้ไม่ได้ — ระบุไม่ได้ว่าเป็นใคร',
             `${samples.length.toLocaleString()} samples`,
             `${orgs.size} org: ${[...orgs].map((o) => o.slice(0, 8)).join(', ')}`,
             `sample ล่าสุด ${age(newest)}`,
@@ -93,10 +105,15 @@ export function diagnose(account: AccountConfig): Diagnosis {
       const { count, newest } = newestMtime(dir, (n) => n.startsWith('rollout-') && n.endsWith('.jsonl'))
       if (count === 0) return fail(dir, 'ไม่พบไฟล์ rollout-*.jsonl')
       const stale = Date.now() - newest > 48 * 3_600_000
+      const who = codexIdentity(account.codexHome ?? DEFAULT_CODEX_HOME)
       return {
         ok: true,
         path: dir,
-        facts: [`${count} session log`, `เขียนล่าสุด ${age(newest)}`],
+        facts: [
+          who?.email ? `ล็อกอินเป็น ${who.email}` : 'อ่านอีเมลของ account นี้ไม่ได้',
+          `${count} session log`,
+          `เขียนล่าสุด ${age(newest)}`,
+        ],
         // The adapter only reads logs touched in the last 48h, so an older tree
         // reads as configured-but-silent rather than working.
         problem: stale ? 'ไม่มี session ไหนถูกเขียนใน 48 ชม.ที่ผ่านมา — adapter จะไม่เห็นตัวเลขปัจจุบัน' : null,
@@ -108,7 +125,17 @@ export function diagnose(account: AccountConfig): Diagnosis {
       if (!existsSync(dir)) return fail(dir, 'ไม่พบโฟลเดอร์ projects')
       const { count, newest } = newestMtime(dir, (n) => n.endsWith('.jsonl'))
       if (count === 0) return fail(dir, 'ไม่พบไฟล์ .jsonl')
-      return { ok: true, path: dir, facts: [`${count} ไฟล์`, `เขียนล่าสุด ${age(newest)}`], problem: null }
+      const [who] = [...claudeIdentityDirectory([account.claudeConfigDir ?? '~']).values()]
+      return {
+        ok: true,
+        path: dir,
+        facts: [
+          who?.email ? `ล็อกอินเป็น ${who.email}` : 'อ่านอีเมลของ account นี้ไม่ได้',
+          `${count} ไฟล์`,
+          `เขียนล่าสุด ${age(newest)}`,
+        ],
+        problem: null,
+      }
     }
 
     default:

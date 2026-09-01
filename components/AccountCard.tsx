@@ -26,6 +26,9 @@ export function AccountCard({ account, history, now, linkToDetail = true }: Acco
   const severity = severityOf(primary?.usedPercent ?? null)
   const color = SEVERITY_COLOR[severity]
   const dimmed = account.health === 'stale' || account.health === 'unconfigured'
+  // The email is the thing that actually tells two accounts apart; fall back to
+  // a name, then to nothing rather than repeating the card's own label.
+  const identityLine = account.identity?.email ?? account.identity?.name ?? null
 
   return (
     <article
@@ -44,9 +47,17 @@ export function AccountCard({ account, history, now, linkToDetail = true }: Acco
               </Link>
             ) : account.displayName}
           </h2>
-          <p className="truncate font-mono text-[11px] text-dim">
+          {identityLine && (
+            <p className="truncate font-mono text-[11.5px] text-accent" title={identityLine}>
+              {identityLine}
+            </p>
+          )}
+          <p className="truncate font-mono text-[10.5px] text-dim">
             {account.surface}
             {account.planType ? ` · ${account.planType}` : ''}
+            {!identityLine && account.identity?.organizationUuid
+              ? ` · ${account.identity.organizationUuid.slice(0, 8)}…`
+              : ''}
           </p>
         </div>
         <span

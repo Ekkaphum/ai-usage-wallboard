@@ -31,6 +31,13 @@ const StateSchema = z.object({
   provider: z.enum(['anthropic', 'openai', 'openrouter', 'google', 'github', 'custom']).default('custom'),
   surface: z.enum(['claude-desktop', 'claude-code', 'codex-cli', 'api', 'web']).default('api'),
   displayName: z.string().min(1),
+  identity: z.object({
+    email: z.string().nullable().default(null),
+    name: z.string().nullable().default(null),
+    organizationName: z.string().nullable().default(null),
+    accountUuid: z.string().nullable().default(null),
+    organizationUuid: z.string().nullable().default(null),
+  }).nullable().default(null),
   planType: z.string().nullable().default(null),
   windows: z.array(LimitWindowSchema).default([]),
   burn: z.object({

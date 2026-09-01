@@ -83,6 +83,8 @@ function renderAccount(a: AccountState, now: number): string {
   const head = `${badge} ${c(C.bold, a.displayName)} ${c(C.dim, `${a.provider}/${a.surface}${a.planType ? ` · ${a.planType}` : ''}`)}`
   const lines = [head]
 
+  const who = a.identity?.email ?? a.identity?.name
+  if (who) lines.push(`  ${c(C.cyan, who)}${a.identity?.organizationName ? c(C.grey, `  ${a.identity.organizationName}`) : ''}`)
   if (a.accountId !== a.configId) lines.push(`  ${c(C.grey, `org ${a.accountId}`)}`)
 
   for (const w of a.windows) lines.push(...renderWindow(w, now))

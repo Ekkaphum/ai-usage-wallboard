@@ -117,6 +117,20 @@ adapter ที่เรียก API ต้องมี key ใน `.env.local` 
 เพิ่ม provider ใหม่ = เขียนไฟล์เดียวใน `lib/adapters/` ที่ implement `ProviderAdapter`
 แล้วลงทะเบียนใน `lib/adapters/index.ts` — ไม่ต้องแก้ core
 
+### ตัวตนของ account
+
+การ์ดบนจอโชว์ชื่อที่ตั้งใน config ซึ่งบอกไม่ได้ว่าเป็น account ไหนจริงๆ ระบบเลยอ่านตัวตนจริงจาก
+credential ที่มีอยู่แล้วในเครื่องมาแสดงด้วย:
+
+| adapter | อ่านจาก | ได้อะไร |
+|---|---|---|
+| `claude-desktop-plan-usage` | `~/.claude.json` → `oauthAccount` join กับ `org` ใน plan-usage-history | อีเมล, ชื่อองค์กร, **plan จริง** (เช่น `claude_pro`) |
+| `codex-local` | claim ใน `id_token` ของ `$CODEX_HOME/auth.json` | อีเมล, ชื่อ |
+| `claude-code-local` | `$CLAUDE_CONFIG_DIR/.claude.json` | อีเมล |
+
+อ่านเฉพาะ claim `email` กับ `name` เท่านั้น — **token กับ API key ไม่เคยถูกอ่านออกมา เก็บ หรือ log**
+(มี test ยืนยัน) และข้อมูลไปอยู่แค่บนจอที่ bind `127.0.0.1` กับ SQLite ที่ gitignored
+
 ### ข้อจำกัดที่ต้องรู้
 
 - **เวลารีเซ็ตของ Claude เป็นค่าที่ derive เอง** ไฟล์ของแอปบอกแค่ % ไม่ได้บอกเวลา

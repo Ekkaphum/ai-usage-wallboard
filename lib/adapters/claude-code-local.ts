@@ -12,6 +12,7 @@ import { getDb, schema } from '@/lib/db/client'
 import { currentTokenBlock, tokensPerHour, type TokenPoint } from '@/lib/calc/blocks'
 import { costUsd, normalizeModel, unpricedModels } from '@/lib/calc/pricing'
 import { budgetForFiveHour } from '@/lib/calc/calibrate'
+import { claudeIdentityDirectory } from '@/lib/identity'
 
 /**
  * Reads the per-message token accounting Claude Code writes to
@@ -386,6 +387,9 @@ export const claudeCodeLocal: ProviderAdapter = {
       }
     }
 
+    // A Claude Code profile keeps its own signed-in account in .claude.json.
+    const [identity] = [...claudeIdentityDirectory([cfg.claudeConfigDir ?? '~']).values()]
+
     const breakdown = modelBreakdown(cfg.id, weekAgo)
     const missing = unpricedModels(breakdown.map((b) => b.model))
     const startOfDay = new Date(now).setHours(0, 0, 0, 0)
@@ -396,7 +400,14 @@ export const claudeCodeLocal: ProviderAdapter = {
       provider: 'anthropic',
       surface: 'claude-code',
       displayName: cfg.displayName,
-      planType: null,
+      identity: identity && {
+        email: identity.email,
+        name: identity.name,
+        organizationName: identity.organizationName,
+        accountUuid: identity.accountUuid,
+        organizationUuid: identity.organizationUuid,
+      },
+      planType: identity?.organizationType ?? null,
       windows: [fiveHour, weekly],
       burn,
       spend: { todayUsd: spendSince(cfg.id, startOfDay), weekUsd: spendSince(cfg.id, weekAgo) },

@@ -24,6 +24,9 @@ export function recordSnapshot(snapshot: Snapshot): { inserted: number } {
         surface: account.surface,
         displayName: account.displayName,
         planType: account.planType,
+        email: account.identity?.email ?? null,
+        accountName: account.identity?.name ?? null,
+        organizationName: account.identity?.organizationName ?? null,
         firstSeenAt: observedAt,
         lastSeenAt: observedAt,
       }).onConflictDoUpdate({
@@ -31,6 +34,9 @@ export function recordSnapshot(snapshot: Snapshot): { inserted: number } {
         set: {
           displayName: account.displayName,
           planType: account.planType,
+          email: account.identity?.email ?? null,
+          accountName: account.identity?.name ?? null,
+          organizationName: account.identity?.organizationName ?? null,
           configId: account.configId,
           lastSeenAt: observedAt,
         },

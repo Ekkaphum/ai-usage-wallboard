@@ -5,6 +5,9 @@ CREATE TABLE `accounts` (
 	`surface` text NOT NULL,
 	`display_name` text NOT NULL,
 	`plan_type` text,
+	`email` text,
+	`account_name` text,
+	`organization_name` text,
 	`first_seen_at` integer NOT NULL,
 	`last_seen_at` integer NOT NULL
 );

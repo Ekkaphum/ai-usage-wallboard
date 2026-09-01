@@ -22,6 +22,14 @@ export default async function AccountPage({ params }: PageProps<'/account/[id]'>
       <header className="flex flex-wrap items-baseline justify-between gap-4 border-b border-line pb-4">
         <div>
           <h1 className="text-[17px] font-bold tracking-tight">{report.displayName}</h1>
+          {(report.email || report.accountName) && (
+            <p className="font-mono text-[12px] text-accent">
+              {report.email ?? report.accountName}
+              {report.organizationName && report.organizationName !== report.email && (
+                <span className="text-dim">  {report.organizationName}</span>
+              )}
+            </p>
+          )}
           <p className="font-mono text-[11.5px] text-dim">
             {report.provider}/{report.surface}
             {report.planType ? ` · ${report.planType}` : ''}
@@ -111,6 +119,7 @@ export default async function AccountPage({ params }: PageProps<'/account/[id]'>
           {others.map((a) => (
             <Link key={a.id} href={`/account/${encodeURIComponent(a.id)}`} className="text-accent hover:underline">
               {a.displayName}
+              {a.email && <span className="text-dim"> ({a.email})</span>}
             </Link>
           ))}
         </footer>

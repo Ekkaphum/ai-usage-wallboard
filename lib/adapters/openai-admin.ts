@@ -79,6 +79,15 @@ export const openaiAdmin: ProviderAdapter = {
       provider: 'openai',
       surface: 'api',
       displayName: cfg.displayName,
+      // Admin keys carry no user identity; naming the variable that supplied
+      // the key is what distinguishes two org cards from each other.
+      identity: {
+        email: null,
+        name: `key: ${envName}`,
+        organizationName: cfg.scopeId ?? null,
+        accountUuid: null,
+        organizationUuid: null,
+      },
       planType: 'org',
       windows: [makeWindow({
         key: 'weekly',

@@ -64,6 +64,14 @@ export const openrouter: ProviderAdapter = {
       provider: 'openrouter',
       surface: 'api',
       displayName: cfg.displayName,
+      // An API key has no user attached; its label is the only identity there is.
+      identity: {
+        email: null,
+        name: data.label ?? null,
+        organizationName: null,
+        accountUuid: null,
+        organizationUuid: null,
+      },
       planType: data.is_free_tier ? 'free' : 'paid',
       windows,
       burn: emptyBurn(),
