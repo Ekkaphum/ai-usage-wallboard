@@ -37,21 +37,24 @@ grep INGEST_TOKEN .env.local
 
 ค่านี้ต้องเหมือนกันทั้งสองเครื่อง ถ้าไม่ตรง ingest จะตอบ 401
 
-### 2. เครื่องจอ (Windows) — PowerShell แบบ Administrator
+### 2. เครื่องจอ (Windows) — คำสั่งเดียว
+
+repo เป็น private ต้อง auth ก่อน clone:
 
 ```powershell
-git clone <repo> C:\ai-wallboard
+winget install -e --id GitHub.cli --accept-source-agreements --accept-package-agreements
+gh auth login
+gh repo clone Ekkaphum/ai-usage-wallboard C:\ai-wallboard
 cd C:\ai-wallboard
-.\deploy\windows\setup.ps1 -IngestToken "<token>" -AllowFrom "192.168.1.20"
+.\deploy\windows\install.ps1
 ```
 
-`-AllowFrom` คือ IP ของเครื่อง Mac — firewall จะเปิดพอร์ตให้เฉพาะเครื่องนั้น
-ถ้าไม่ใส่จะเปิดให้ทั้ง subnet
-
-setup.ps1 จะ:
+`install.ps1` ยกสิทธิ์ตัวเองเป็น Administrator และถามแค่สองอย่าง — token กับ IP
+ของเครื่อง Mac (เอาไว้จำกัด firewall) นอกนั้นจัดการเองหมด:
 
 | ทำอะไร | ทำไม |
 |---|---|
+| ติดตั้ง Node 20+ ถ้ายังไม่มี (winget) | — |
 | `npm ci` + `npm run build` | — |
 | เขียน `config/accounts.json` = `{"accounts": []}` | ถ้าไม่มีไฟล์นี้ แอปจะ fallback ไปหา path ของ macOS แล้วขึ้นการ์ดพัง 3 ใบ |
 | เขียน `.env.local` พร้อม `WALLBOARD_READONLY=1` | ทุกอย่างบนจอมาจากที่อื่น จึงไม่ควรแก้จาก browser บน LAN ได้ |
@@ -59,8 +62,10 @@ setup.ps1 จะ:
 | scheduled task `AI Wallboard Server` (at startup, SYSTEM) | ขึ้นเองหลังไฟดับ |
 | scheduled task `AI Wallboard Kiosk` (at logon) | เปิดเต็มจอเอง |
 | `powercfg` monitor/standby/hibernate = 0 | จอไม่ดับ |
+| ยิงทดสอบ `/api/ingest` ด้วย token ตัวเอง | token ไม่ตรงคือสาเหตุที่ระบบดูเหมือนตายเงียบบ่อยที่สุด — จับตั้งแต่ตอนติดตั้ง |
+| เปิด kiosk เต็มจอ | — |
 
-จบแล้วจะพิมพ์ IP ที่ใช้ได้ออกมาให้
+จบแล้วจะพิมพ์คำสั่งที่ต้องไปรันบนเครื่อง Mac ออกมาให้ครบ พร้อม IP จริง
 
 ### 3. เครื่อง Mac
 
@@ -108,3 +113,30 @@ tail -f data/collector.log
   ก่อตัวเอง ถ้าอยากได้ของเก่าไปด้วยใช้ `/api/export` จากเครื่องเดิม
 - เครื่องจอบันทึกทุกอย่างที่รับเข้ามาลง DB ตัวเอง จึงมี history ของมันเอง
   แม้จะไม่เคยอ่านไฟล์อะไรเลย
+
+## อัปเดตทีหลัง
+
+เครื่องจอ:
+
+```powershell
+.\deploy\windows\update.ps1
+```
+
+`git pull` + rebuild + restart โดยไม่แตะ `config/accounts.json` กับ `.env.local`
+(ทั้งคู่อยู่ใน `.gitignore`) ถ้า build พัง server ตัวเก่ายังรันอยู่ ไม่ล้ม
+
+เครื่อง Mac:
+
+```bash
+git pull && npm ci && launchctl kickstart -k "gui/$UID/com.local.aiwallboard-collector"
+```
+
+## ถอนออก
+
+```powershell
+.\deploy\windows\uninstall.ps1 -RestorePowerDefaults
+```
+
+```bash
+launchctl bootout "gui/$UID/com.local.aiwallboard-collector"
+```

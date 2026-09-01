@@ -3,7 +3,7 @@
   at boot; safe to run by hand for debugging.
 
   Bound to 0.0.0.0 rather than loopback because the collector on another machine
-  has to reach /api/ingest. The firewall rule written by setup.ps1 is what keeps
+  has to reach /api/ingest. The firewall rule written by install.ps1 is what keeps
   that from meaning "anyone on the network".
 #>
 [CmdletBinding()]
